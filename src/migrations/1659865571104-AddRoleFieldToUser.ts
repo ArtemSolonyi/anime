@@ -1,12 +1,9 @@
 import {MigrationInterface, QueryRunner, TableColumn} from "typeorm"
 
-export class ItemsFile1658777161574 implements MigrationInterface {
+export class AddRoleFieldToUser1659865571104 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-      await  queryRunner.addColumns('item',[new TableColumn({
-          name:'description',type:"text"
-      })])
-
+       await queryRunner.addColumn('user',new TableColumn({name:'role',type:'varchar'}))
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
