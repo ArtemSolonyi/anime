@@ -1,11 +1,15 @@
 import {UserFactory} from "./userFactory";
+
 import * as bcrypt from "bcryptjs";
 import {User} from "../users/entities/user";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {ConflictException, Injectable, NotFoundException, UnprocessableEntityException} from "@nestjs/common";
 import {ITokens, TokenService} from "../token/token.service";
-import {AuthDto, AuthLoginDto} from "./dto/auth.dto";
+import {AuthDto, AuthLoginDto, AuthRefreshDto} from "./dto/auth.dto";
+import {verify} from "jsonwebtoken";
+import {JwtService} from "@nestjs/jwt";
+
 
 type IUser = Omit<AuthDto, "password">
 
@@ -17,8 +21,7 @@ interface IRegisterUser {
 @Injectable()
 export class AuthService {
     constructor(@InjectRepository(User) private userRepository: Repository<User>,
-                private tokenService: TokenService) {
-    }
+                private tokenService: TokenService,) {}
 
     async getRegisteredUser(body: AuthDto): Promise<ConflictException | IRegisterUser> {
         const user = new UserFactory(body)
@@ -28,7 +31,7 @@ export class AuthService {
         } else {
             const registeredUser = await this.userRepository.create(user)
             const savedUser = await this.userRepository.save(registeredUser)
-            await this.tokenService.tokensForRegister(savedUser)
+            await this.tokenService.tokensForRegister(savedUser.id)
             return {tokens: this.tokenService.getPairTokens(), user: this.getInfoAboutUser(savedUser)}
         }
     }
@@ -38,7 +41,7 @@ export class AuthService {
         if (user) {
             const checkResemblanceDecodePassword = bcrypt.compareSync(body.password, user.password);
             if (checkResemblanceDecodePassword) {
-                await this.tokenService.updateTokens(user)
+                await this.tokenService.updateTokens(user.id)
                 return {tokens: this.tokenService.getPairTokens(), user: this.getInfoAboutUser(user)}
             } else {
                 throw new UnprocessableEntityException("Password doesn't resemblance")
@@ -48,7 +51,11 @@ export class AuthService {
         }
     }
 
-
+    async refresh(body:AuthRefreshDto){
+        const userId:number = this.tokenService.verify(body.refreshToken)
+        await this.tokenService.updateTokens(userId)
+        return this.tokenService.getPairTokens()
+    }
     private getInfoAboutUser(user: User): IUser {
         return {username: user.username, email: user.email, role: user.role}
     }

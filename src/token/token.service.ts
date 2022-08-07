@@ -1,47 +1,55 @@
-import {sign} from 'jsonwebtoken'
+import {JwtPayload, sign} from 'jsonwebtoken'
 import {User} from "../users/entities/user";
 import {Token} from "./entity/token";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Injectable} from "@nestjs/common";
-
+import {JwtService} from '@nestjs/jwt';
+import {AuthRefreshDto} from "../authorizhation/dto/auth.dto";
 
 export interface ITokens {
     accessToken: string,
     refreshToken: string
 }
+
 @Injectable()
 export class TokenService {
-    private user: User
+    private userId: number
     private _accessToken: string
     private _refreshToken: string
 
-    constructor(@InjectRepository(Token) private tokenRepository?: Repository<Token>) {}
+    constructor(@InjectRepository(Token) private tokenRepository?: Repository<Token>,
+                private jwtService?: JwtService) {
+    }
 
-    public async groupingCreatedTokens(): Promise<void> {
-        const payloadData = {userId: this.user.id}
+    public async groupingCreatedTokens(userId: number): Promise<void> {
+        const payloadData = {userId: userId}
+
         this._accessToken = await this._createToken(payloadData, "process.env.SECRET_KEY_ACCESS_JWT", "15m")
         this._refreshToken = await this._createToken(payloadData, "process.env.SECRET_KEY_REFRESH_JWT", '30d')
 
     }
 
-
     private async _createToken(payloadData: object, secretKey: string, timeExpire: string): Promise<string> {
-        return sign(payloadData, secretKey, {expiresIn: timeExpire})
+        return this.jwtService.sign(payloadData, {secret: secretKey, expiresIn: timeExpire})
     }
 
     public getPairTokens(): ITokens {
-        return {accessToken: this.accessToken, refreshToken: this._refreshToken}
+        return {accessToken: this._accessToken, refreshToken: this._refreshToken}
+    }
+
+    public verify(token: string) {
+        return this.jwtService.verify(token, {secret: 'process.env.SECRET_KEY_REFRESH_JWT'})
     }
 
     public async saveCreatedTokens(): Promise<void> {
         let tokenEntity: Token = {
-            userId: this.user.id,
+            userId: this.userId,
             accessToken: this._accessToken,
             refreshToken: this._refreshToken
         }
         const createdTokenEntity = await this.tokenRepository.create(tokenEntity)
-        const savedTokenEntity = await this.tokenRepository.save(createdTokenEntity)
+        await this.tokenRepository.save(createdTokenEntity)
     }
 
     public get accessToken() {
@@ -52,24 +60,21 @@ export class TokenService {
         return this._refreshToken
     }
 
-    public async updateTokens(user:User) {
-        this.user = user
-        await this.groupingCreatedTokens()
-        this.tokenRepository
+    public async updateTokens(userId: number) {
+        await this.groupingCreatedTokens(userId)
+        await this.tokenRepository
             .createQueryBuilder()
             .update(Token)
             .set({
                 accessToken: this._accessToken,
                 refreshToken: this._refreshToken
             })
-            .where("id=:id",{id:user.id})
-
-
+            .where("id=:id", {id: userId})
     }
 
-    public async tokensForRegister(user: User) {
-        this.user = user
-        await this.groupingCreatedTokens()
+    public async tokensForRegister(userId: number) {
+        this.userId = userId
+        await this.groupingCreatedTokens(userId)
         await this.saveCreatedTokens()
     }
 
