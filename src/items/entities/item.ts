@@ -1,7 +1,7 @@
 import {Entity, Column, PrimaryGeneratedColumn} from 'typeorm';
 
 @Entity()
-export class ItemEntity {
+export class Item {
     @PrimaryGeneratedColumn()
     id: number;
     @Column()
@@ -19,7 +19,7 @@ export class ItemEntity {
     @Column()
     year:number
     @Column()
-    user:number
+    userId:number
     @Column()
     image:string
     @Column()

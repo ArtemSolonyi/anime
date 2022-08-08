@@ -25,12 +25,12 @@ export class TokenService {
     public async groupingCreatedTokens(userId: number): Promise<void> {
         const payloadData = {userId: userId}
 
-        this._accessToken = await this._createToken(payloadData, "process.env.SECRET_KEY_ACCESS_JWT", "15m")
-        this._refreshToken = await this._createToken(payloadData, "process.env.SECRET_KEY_REFRESH_JWT", '30d')
+        this._accessToken = await this.createToken(payloadData, "process.env.SECRET_KEY_ACCESS_JWT", "15m")
+        this._refreshToken = await this.createToken(payloadData, "process.env.SECRET_KEY_REFRESH_JWT", '30d')
 
     }
 
-    private async _createToken(payloadData: object, secretKey: string, timeExpire: string): Promise<string> {
+    public async createToken(payloadData: object, secretKey: string, timeExpire: string): Promise<string> {
         return this.jwtService.sign(payloadData, {secret: secretKey, expiresIn: timeExpire})
     }
 
@@ -62,14 +62,11 @@ export class TokenService {
 
     public async updateTokens(userId: number) {
         await this.groupingCreatedTokens(userId)
-        await this.tokenRepository
-            .createQueryBuilder()
-            .update(Token)
-            .set({
-                accessToken: this._accessToken,
-                refreshToken: this._refreshToken
-            })
-            .where("id=:id", {id: userId})
+        await this.tokenRepository.update({userId: userId}, {
+            accessToken: this._accessToken,
+            refreshToken: this._refreshToken
+        })
+
     }
 
     public async tokensForRegister(userId: number) {

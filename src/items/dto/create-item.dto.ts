@@ -1,6 +1,7 @@
 import {IsBoolean, IsNotEmpty, IsNumber, IsString} from "class-validator";
 
 export class CreateItemDto {
+    id?:number
     @IsNotEmpty()
     @IsString()
     title: string
@@ -30,7 +31,7 @@ export class CreateItemDto {
     year: number
 
     @IsNotEmpty()
-    user: number
+    userId: number
 
     @IsString()
     @IsNotEmpty()

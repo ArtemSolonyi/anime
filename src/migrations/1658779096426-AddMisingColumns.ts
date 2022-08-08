@@ -29,7 +29,7 @@ export class AddMisingColumns1658779096426 implements MigrationInterface {
                     name: 'year', type: "year"
                 },
                 {
-                    name: 'user', type: "int"
+                    name: 'userId', type: "int"
                 },
                 {
                     name: 'image', type: "text"

@@ -1,5 +1,5 @@
 import {DataSource} from "typeorm";
-import {ItemEntity} from "./items/entities/itemEntity";
+import {Item} from "./items/entities/item";
 export const AppDataSource = new DataSource({
     migrationsTableName: 'migrations',
     type: 'mysql',
@@ -11,7 +11,7 @@ export const AppDataSource = new DataSource({
     logging: false,
     synchronize: false,
     name: 'default',
-    entities: [ItemEntity],
+    entities: [Item],
     migrations: ['./src/migrations/**/*{.ts,.js}'],
     subscribers: ['src/subscriber/**/*{.ts,.js}'],
 })
