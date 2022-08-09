@@ -1,21 +1,19 @@
 import {UserFactory} from "./userFactory";
-
 import * as bcrypt from "bcryptjs";
 import {User} from "../users/entities/user";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {
-    BadGatewayException,
     ConflictException,
-    HttpStatus,
     Injectable,
-    NotFoundException, PreconditionFailedException, UnauthorizedException,
+    NotFoundException, PreconditionFailedException,
     UnprocessableEntityException
 } from "@nestjs/common";
 import {ITokens, TokenService} from "../token/token.service";
 import {AuthDto, AuthLoginDto, AuthRefreshDto} from "./dto/auth.dto";
-import {Profile} from "../profile/profile.entity";
 import {MailService} from "../sendMailer/mail.service";
+import {isEmail} from "./isEmail";
+import {Setting} from "../settings/entities/setting.entity";
 
 
 type IUser = Omit<AuthDto, "password">
@@ -28,7 +26,7 @@ interface IUserInfo {
 @Injectable()
 export class AuthService {
     constructor(@InjectRepository(User) private userRepository: Repository<User>,
-                @InjectRepository(Profile) private profileRepository: Repository<Profile>,
+                @InjectRepository(Setting) private settingRepository: Repository<Setting>,
                 private tokenService: TokenService,
                 private mailService: MailService) {
     }
@@ -42,12 +40,13 @@ export class AuthService {
             const registeredUser = await this.userRepository.create(user)
             const savedUser = await this.userRepository.save(registeredUser)
             const tempKey = await this.tokenService.createToken({email: "tempkey"}, "process.env.SECRET_KEY_REFRESH_JWT", '30d')
-            const profile = await this.profileRepository.create({
+            const setting = await this.settingRepository.create({
                 userId: savedUser.id,
                 emailIsActivated: false,
                 tempKeyForActivationEmail: tempKey
             })
-            await this.profileRepository.save(profile)
+
+            await this.settingRepository.save(setting)
             await this.mailService.activateAccount(registeredUser.email, tempKey, savedUser.id)
         }
     }
@@ -56,22 +55,37 @@ export class AuthService {
     async mailActivation(userId: number, token: string): Promise<IUserInfo | PreconditionFailedException> {
         await this.tokenService.tokensForRegister(userId)
         const user = await this.userRepository.findOneBy({id: userId})
-        const profile = await this.profileRepository.findOneBy({userId: userId})
-        if (profile) {
-            if (profile.tempKeyForActivationEmail === token) {
-                await this.profileRepository.update({id: profile.id}, {emailIsActivated: true})
+        const setting = await this.settingRepository.findOneBy({userId: userId})
+        if (setting && !setting.emailIsActivated) {
+            if (setting.tempKeyForActivationEmail === token) {
+                await this.settingRepository.update({id: setting.id}, {emailIsActivated: true})
                 return {tokens: this.tokenService.getPairTokens(), user: this.getInfoAboutUser(user)}
             } else {
                 throw new PreconditionFailedException("Failed activate mail")
             }
-        } else throw new PreconditionFailedException("Failed activate mail")
+        } else throw new PreconditionFailedException("Email already activate")
     }
 
     async login(body: AuthLoginDto): Promise<(UnprocessableEntityException | NotFoundException) | IUserInfo> {
-        const user = await this.userRepository.findOneBy({email: body.email})
-        const userProfile = await this.profileRepository.findOneBy({userId:user.id})
-        if (user && userProfile.emailIsActivated) {
+        let user;
+        if (isEmail(body.login)) {
+            user = await this.userRepository.createQueryBuilder('user')
+                .addSelect('user.password')
+                .where({email: body.login})
+                .getOne()
+        } else {
+            user = await this.userRepository.createQueryBuilder('user')
+                .addSelect('user.password')
+                .where({username: body.login})
+                .getOne()
+        }
+        if (user) {
+            const userProfile = await this.settingRepository.findOneBy({userId: user.id})
+            if (!userProfile.emailIsActivated) {
+                throw new NotFoundException('Email not active')
+            }
             const checkResemblanceDecodePassword = bcrypt.compareSync(body.password, user.password);
+
             if (checkResemblanceDecodePassword) {
                 await this.tokenService.updateTokens(user.id)
                 return {tokens: this.tokenService.getPairTokens(), user: this.getInfoAboutUser(user)}

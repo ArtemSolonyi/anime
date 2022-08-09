@@ -9,11 +9,12 @@ import {ProfileModule} from "../profile/profile.module";
 import {Profile} from "../profile/profile.entity";
 import {MailModule} from "../sendMailer/mail.module";
 import {MailService} from "../sendMailer/mail.service";
+import {Setting} from "../settings/entities/setting.entity";
 
 
 @Module({
     imports: [TypeOrmModule.forFeature([User]),
-        TypeOrmModule.forFeature([Profile])
+        TypeOrmModule.forFeature([Setting])
         , forwardRef(() => TokenModule),forwardRef(()=>MailModule)],
     controllers: [AuthController],
     providers: [AuthService]
