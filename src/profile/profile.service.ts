@@ -1,12 +1,16 @@
-import {ChangingUsernameDto} from "./dto/changing.nickname.dto";
+import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
 import {User} from "../users/entities/user";
-import {Injectable, UnprocessableEntityException} from "@nestjs/common";
+import {Repository} from "typeorm";
 
 @Injectable()
 export class ProfileService {
+    constructor(@InjectRepository(User) private userRepository: Repository<User>) {
+    }
 
-
+    public async getInfoAboutProfile(userId: number) {
+        const user = this.userRepository.findOneBy({id: userId})
+        return
+    }
 
 }

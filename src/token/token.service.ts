@@ -6,6 +6,7 @@ import {Repository} from "typeorm";
 import {Injectable} from "@nestjs/common";
 import {JwtService} from '@nestjs/jwt';
 import {AuthRefreshDto} from "../authorizhation/dto/auth.dto";
+import {ConfigService} from "@nestjs/config";
 
 export interface ITokens {
     accessToken: string,
@@ -19,14 +20,14 @@ export class TokenService {
     private _refreshToken: string
 
     constructor(@InjectRepository(Token) private tokenRepository?: Repository<Token>,
-                private jwtService?: JwtService) {
+                private jwtService?: JwtService,
+                private config?:ConfigService) {
     }
 
     public async groupingCreatedTokens(userId: number): Promise<void> {
         const payloadData = {userId: userId}
-
-        this._accessToken = await this.createToken(payloadData, "process.env.SECRET_KEY_ACCESS_JWT", "15m")
-        this._refreshToken = await this.createToken(payloadData, "process.env.SECRET_KEY_REFRESH_JWT", '30d')
+        this._accessToken = await this.createToken(payloadData, this.config.get("SECRET_KEY_ACCESS_JWT"), "15m")
+        this._refreshToken = await this.createToken(payloadData, this.config.get("SECRET_KEY_REFRESH_JWT"), '30d')
 
     }
 
@@ -39,7 +40,7 @@ export class TokenService {
     }
 
     public verify(token: string) {
-        return this.jwtService.verify(token, {secret: 'process.env.SECRET_KEY_REFRESH_JWT'})
+        return this.jwtService.verify(token, {secret: process.env.SECRET_KEY_REFRESH_JWT!})
     }
 
     public async saveCreatedTokens(): Promise<void> {

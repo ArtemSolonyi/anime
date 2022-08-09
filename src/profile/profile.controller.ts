@@ -7,6 +7,8 @@ import {EmailDto} from "./dto/email.dto";
 export class ProfileController {
     constructor(private profileService: ProfileService) {}
 
-
+    async getInfoAboutProfile(){
+        return await this.profileService
+    }
 
 }

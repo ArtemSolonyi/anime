@@ -1,12 +1,12 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Redirect} from '@nestjs/common';
 import {SettingsService} from './settings.service';
 import {CreateSettingDto} from './dto/create-setting.dto';
 import {UpdateSettingDto} from './dto/update-setting.dto';
 import {ChangingUsernameDto} from "../profile/dto/changing.nickname.dto";
 import {EmailDto} from "../profile/dto/email.dto";
 import {RecoveryPasswordDto} from "./dto/recovery.password.dto";
-import {NewPasswordDto} from "./new.password.dto";
-
+import {NewPasswordDto} from "./dto/new.password.dto";
+import {RequestChangingEmailDto} from "../profile/dto/requestChangingEmailDto";
 
 
 @Controller('settings')
@@ -16,7 +16,17 @@ export class SettingsController {
 
     @Patch('/change/username')
     async changeNickname(@Body() body: ChangingUsernameDto) {
-        return await this.settingsService.changeNickname(body)
+        return await this.settingsService.changeUsername(body)
+    }
+
+    @Patch('/change/email')
+    async requestOnChangingEmail(@Body() body: RequestChangingEmailDto) {
+        return await this.settingsService.requestOnChangingEmail(body)
+    }
+
+    @Get('/change/email/:secretTokenFromLinkConfirmedEmail')
+    async async(@Param("secretTokenFromLinkConfirmedEmail") secretTokenFromLinkConfirmedEmail:string) {
+        return await this.settingsService.changingEmail(secretTokenFromLinkConfirmedEmail)
     }
 
     @Patch('/request/forgot/password')
@@ -25,36 +35,15 @@ export class SettingsController {
     }
 
     @Patch('/sending/forgot/password')
-    async sendingCodeForConfirmChangingPassword(@Body() body:RecoveryPasswordDto ) {
+    async sendingCodeForConfirmChangingPassword(@Body() body: RecoveryPasswordDto) {
         return await this.settingsService.sendingCodeForConfirmChangingPassword(body)
     }
+
     @Patch('/changing/forgot/password')
-    async changingForgotPasswordByEmailAndCode(@Body() body:NewPasswordDto ) {
+    async changingForgotPasswordByEmailAndCode(@Body() body: NewPasswordDto) {
         return await this.settingsService.changingForgotPasswordByEmailAndCode(body)
     }
 
-    @Post()
-    create(@Body() createSettingDto: CreateSettingDto) {
-        return this.settingsService.create(createSettingDto);
-    }
 
-    @Get()
-    findAll() {
-        return this.settingsService.findAll();
-    }
 
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.settingsService.findOne(+id);
-    }
-
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateSettingDto: UpdateSettingDto) {
-        return this.settingsService.update(+id, updateSettingDto);
-    }
-
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.settingsService.remove(+id);
-    }
 }

@@ -4,6 +4,7 @@ import {User} from "../users/entities/user";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {
+    BadRequestException,
     ConflictException,
     Injectable,
     NotFoundException, PreconditionFailedException,
@@ -14,6 +15,7 @@ import {AuthDto, AuthLoginDto, AuthRefreshDto} from "./dto/auth.dto";
 import {MailService} from "../sendMailer/mail.service";
 import {isEmail} from "./isEmail";
 import {Setting} from "../settings/entities/setting.entity";
+import {ConfigService} from "@nestjs/config";
 
 
 type IUser = Omit<AuthDto, "password">
@@ -28,6 +30,7 @@ export class AuthService {
     constructor(@InjectRepository(User) private userRepository: Repository<User>,
                 @InjectRepository(Setting) private settingRepository: Repository<Setting>,
                 private tokenService: TokenService,
+                private config:ConfigService,
                 private mailService: MailService) {
     }
 
@@ -35,24 +38,24 @@ export class AuthService {
         const user = new UserFactory(body)
         await user.hashPassword()
         if (await this._checkForAvailableUser(user)) {
-            throw new ConflictException('User already exist')
+            throw new BadRequestException('User already exist')
         } else {
             const registeredUser = await this.userRepository.create(user)
             const savedUser = await this.userRepository.save(registeredUser)
-            const tempKey = await this.tokenService.createToken({email: "tempkey"}, "process.env.SECRET_KEY_REFRESH_JWT", '30d')
+            const tempKey = await this.tokenService.createToken({userId: savedUser.id}, this.config.get("SECRET_KEY_REFRESH_JWT"), '30d')
             const setting = await this.settingRepository.create({
                 userId: savedUser.id,
                 emailIsActivated: false,
                 tempKeyForActivationEmail: tempKey
             })
-
             await this.settingRepository.save(setting)
-            await this.mailService.activateAccount(registeredUser.email, tempKey, savedUser.id)
+            await this.mailService.activateAccount(registeredUser.email, tempKey)
         }
     }
 
 
-    async mailActivation(userId: number, token: string): Promise<IUserInfo | PreconditionFailedException> {
+    async mailActivation(token: string): Promise<IUserInfo | PreconditionFailedException> {
+        let userId = this.tokenService.verify(token).userId
         await this.tokenService.tokensForRegister(userId)
         const user = await this.userRepository.findOneBy({id: userId})
         const setting = await this.settingRepository.findOneBy({userId: userId})

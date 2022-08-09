@@ -1,17 +1,6 @@
 import {DataSource} from "typeorm";
-import {Item} from "./items/entities/item";
-export const AppDataSource = new DataSource({
-    migrationsTableName: 'migrations',
-    type: 'mysql',
-    host: 'localhost',
-    port: 3306,
-    username: 'root',
-    password: 'root',
-    database: 'test',
-    logging: false,
-    synchronize: false,
-    name: 'default',
-    entities: [Item],
-    migrations: ['./src/migrations/**/*{.ts,.js}'],
-    subscribers: ['src/subscriber/**/*{.ts,.js}'],
-})
+import * as dotenv from "dotenv"
+import {typeSettingsMySql} from "../config";
+dotenv.config()
+
+export const AppDataSource = new DataSource(typeSettingsMySql)

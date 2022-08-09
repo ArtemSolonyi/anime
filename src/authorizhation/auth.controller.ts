@@ -22,8 +22,8 @@ export class AuthController {
         return await this.authService.refresh(body)
     }
 
-    @Get('/confirmationEmail/active/:userId/:tempKey')
-    private async mailActivation(@Param('userId') userId: number,@Param('tempKey') tempKey:string) {
-        return await this.authService.mailActivation(userId, tempKey)
+    @Get('/confirmationEmail/active/:tempKey')
+    private async mailActivation(@Param('tempKey') tempKey:string) {
+        return await this.authService.mailActivation(tempKey)
     }
 }
