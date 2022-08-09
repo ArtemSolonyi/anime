@@ -15,13 +15,12 @@ export class AuthDto {
     readonly role?:string
 }
 export class AuthLoginDto{
-    @IsEmail()
     @IsString()
     @Length(3)
-    readonly email: string
+     login: string
     @IsString()
     @Length(3)
-    readonly password: string
+     password: string
 }
 export class AuthRefreshDto {
     @IsString()

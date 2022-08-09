@@ -16,6 +16,9 @@ import {JwtModule} from "@nestjs/jwt";
 import {Profile} from "./profile/profile.entity";
 import {ProfileModule} from "./profile/profile.module";
 import {MailModule} from "./sendMailer/mail.module";
+import {ProfileController} from "./profile/profile.controller";
+import { SettingsModule } from './settings/settings.module';
+import {Setting} from "./settings/entities/setting.entity";
 
 
 @Module({
@@ -26,7 +29,7 @@ import {MailModule} from "./sendMailer/mail.module";
         username: 'root',
         password: 'root',
         database: 'test',
-        entities: [Item,User,Token,Profile],
+        entities: [Item,User,Token,Profile,Setting],
         synchronize: false,
         migrations: ['./src/migrations'],
         migrationsTableName: "custom_migration_table",
@@ -36,6 +39,7 @@ import {MailModule} from "./sendMailer/mail.module";
         JwtModule,
         JwtDecodeModule,
         ProfileModule,
+        SettingsModule,
         ],
     controllers: [AppController],
     providers: [{
@@ -45,7 +49,8 @@ import {MailModule} from "./sendMailer/mail.module";
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(isAuthorized).forRoutes(ItemsController)
+        consumer.apply(isAuthorized).forRoutes(ItemsController,ProfileController)
+
     }
 }
 

@@ -43,7 +43,7 @@ export class User {
     username:string
     @Column()
     email:string
-    @Column()
+    @Column({select:false})
     password:string
     @Column()
     role:string

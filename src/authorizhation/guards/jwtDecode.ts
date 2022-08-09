@@ -23,7 +23,6 @@ export class isAuthorized implements NestMiddleware {
             const decodeTokenToPayload = this.jwtService.verify(token, {secret: 'process.env.SECRET_KEY_ACCESS_JWT'})
             request.body.userId = decodeTokenToPayload.userId
             if (decodeTokenToPayload.userId != undefined) {
-                console.log(request.body.userId)
                 next()
             }
         }catch {

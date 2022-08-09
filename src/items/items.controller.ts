@@ -12,7 +12,6 @@ export class ItemsController {
 
     @Post()
     async create(@Body() createItemDto: CreateItemDto) {
-        console.log(createItemDto)
         return await this.itemsService.create(createItemDto);
     }
 
