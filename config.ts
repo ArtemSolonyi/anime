@@ -1,4 +1,6 @@
 import * as dotenv from "dotenv"
+
+import { join } from 'path';
 dotenv.config()
 export const typeSettingsMySql:any ={
     type: process.env.DB_TYPE,
@@ -8,8 +10,13 @@ export const typeSettingsMySql:any ={
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     entities: ["dist/**/*.entity.js"],
+    logging:true,
+    autoLoadEntities: true,
+    migrationsRun:true,
+    cli:{migrationsDir:'anime-back/src/migrations'},
     synchronize: false,
-    migrations: ['./src/migrations'],
+    migrations: [join(__dirname,'../migrations/*{.ts,.js}')],
     migrationsTableName: 'migrations',
+
 }
 
