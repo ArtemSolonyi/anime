@@ -1,15 +1,14 @@
 import {MigrationInterface, QueryRunner, Table, TableForeignKey} from "typeorm"
 
-export class AddTokenEntity1659859293524 implements MigrationInterface {
+export class CreateTableProfile1660125548205 implements MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+        public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(new Table({
-                name: 'Token', columns:
+                name: 'Profile', columns:
                     [
-                        {name: 'id', type: "serial", isPrimary: true},
-                        {name: 'accessToken', type: 'text'},
-                        {name: 'refreshToken', type: 'text'},
+                        {name: 'id', type: "int", isPrimary: true, generationStrategy: 'increment'},
                         {name: 'userId', type: 'int'},
+                        {name: 'avatar', type: 'text'},
 
                     ], foreignKeys: [new TableForeignKey({
                     columnNames: ["userId"],

@@ -10,7 +10,7 @@ import {CreateSettingDto} from './dto/create-setting.dto';
 import {UpdateSettingDto} from './dto/update-setting.dto';
 import {ChangingUsernameDto} from "../profile/dto/changing.nickname.dto";
 import {InjectRepository} from "@nestjs/typeorm";
-import {User} from "../users/entities/user";
+import {User} from "../users/entities/user.entity";
 import {Repository} from "typeorm";
 import {EmailDto} from "../profile/dto/email.dto";
 import {Setting} from "./entities/setting.entity";

@@ -1,4 +1,4 @@
-import {MiddlewareConsumer, Module, NestModule, RequestMethod, ValidationPipe} from '@nestjs/common';
+import {MiddlewareConsumer, Module, NestModule, ValidationPipe} from '@nestjs/common';
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
 import {ItemsModule} from './items/items.module';
@@ -13,17 +13,13 @@ import {JwtModule} from "@nestjs/jwt";
 import {ProfileModule} from "./profile/profile.module";
 import {ProfileController} from "./profile/profile.controller";
 import {SettingsModule} from './settings/settings.module';
-import {ConfigModule, ConfigService} from "@nestjs/config";
+import {ConfigModule} from "@nestjs/config";
+import * as dotenv from "dotenv"
 import {typeSettingsMySql} from "../config";
-import {Item} from "./items/entities/item";
-import {User} from "./users/entities/user";
-import {Token} from "./token/entity/token";
-import {Profile} from "./profile/profile.entity";
-import {Setting} from "./settings/entities/setting.entity";
-
+dotenv.config()
 
 @Module({
-    imports: [TypeOrmModule.forRoot({...typeSettingsMySql,entities:[Item, User, Token, Profile, Setting]}),
+    imports: [TypeOrmModule.forRoot(typeSettingsMySql),
         ItemsModule,
         AuthModule,
         TokenModule,

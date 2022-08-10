@@ -1,8 +1,8 @@
 import {MigrationInterface, QueryRunner, Table, TableForeignKey} from "typeorm"
 
-export class CreateTableSetting1660024445425 implements MigrationInterface {
+export class CreateTableSetting1660125553275 implements MigrationInterface {
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+        public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(new Table({
             name: 'Setting', columns: [
                 {name: "id", type: "bigint", isPrimary: true, generationStrategy: 'increment'},

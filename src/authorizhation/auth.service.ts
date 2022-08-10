@@ -1,6 +1,6 @@
 import {UserFactory} from "./userFactory";
 import * as bcrypt from "bcryptjs";
-import {User} from "../users/entities/user";
+import {User} from "../users/entities/user.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {
@@ -96,7 +96,7 @@ export class AuthService {
                 throw new UnprocessableEntityException("Password doesn't resemblance")
             }
         } else {
-            throw new NotFoundException('User not found')
+            throw new NotFoundException('UserEntity not found')
         }
     }
 

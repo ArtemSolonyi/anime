@@ -1,6 +1,6 @@
 import {JwtPayload, sign} from 'jsonwebtoken'
-import {User} from "../users/entities/user";
-import {Token} from "./entity/token";
+import {User} from "../users/entities/user.entity";
+import {Token} from "./entities/token.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Injectable} from "@nestjs/common";
@@ -44,7 +44,7 @@ export class TokenService {
     }
 
     public async saveCreatedTokens(): Promise<void> {
-        let tokenEntity: Token = {
+        let tokenEntity = {
             userId: this.userId,
             accessToken: this._accessToken,
             refreshToken: this._refreshToken

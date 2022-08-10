@@ -3,7 +3,7 @@ import {Entity, Column, PrimaryGeneratedColumn} from 'typeorm';
 @Entity()
 export class Token {
     @PrimaryGeneratedColumn()
-    id?: number;
+    id: number;
     @Column()
     accessToken:string;
     @Column()

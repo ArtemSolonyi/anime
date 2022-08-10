@@ -1,11 +1,11 @@
-import {MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey} from "typeorm"
+import {MigrationInterface, QueryRunner, Table, TableForeignKey} from "typeorm"
 
-export class AddMisingColumns1658779096426 implements MigrationInterface {
+export class CreateTableItem1660121621527 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(new Table({
-            name: "Item", columns: [ {
-                name: "id", type: "serial", isPrimary: true
+            name: "item", columns: [{
+                name: "id", type: "int", isPrimary: true,generationStrategy: 'increment'
             },
                 {
                     name: 'title', type: "text"
@@ -40,9 +40,16 @@ export class AddMisingColumns1658779096426 implements MigrationInterface {
                 {
                     name: 'watchStatus', type: "varchar"
                 },
-            ]
+                {
+                    name: "favourite", type: 'bool'
+                }
+            ], foreignKeys: [new TableForeignKey({
+                columnNames: ["userId"],
+                referencedColumnNames: ["id"],
+                referencedTableName: "user",
+                onDelete: "CASCADE",
+            }),]
         }))
-
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

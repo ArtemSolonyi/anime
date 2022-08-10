@@ -1,6 +1,6 @@
 import {forwardRef, Module} from '@nestjs/common';
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {Token} from "./entity/token";
+import {Token} from "./entities/token.entity";
 import {ItemsService} from "../items/items.service";
 import {TokenService} from "./token.service";
 import {AuthModule} from "../authorizhation/auth.module";
