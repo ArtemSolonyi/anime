@@ -9,7 +9,7 @@ export const typeSettingsMySql:any ={
     database: process.env.DB_DATABASE,
     entities: ["dist/**/*.entity.js"],
     synchronize: false,
-    migrations: ['./src/migrations/*{.ts,.js}'],
+    migrations: ['./src/migrations'],
     migrationsTableName: 'migrations',
 }
 

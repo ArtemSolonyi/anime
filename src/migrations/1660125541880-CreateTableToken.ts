@@ -3,7 +3,7 @@ import {MigrationInterface, QueryRunner, Table, TableForeignKey} from "typeorm"
 export class CreateTableToken1660125541880 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(new Table({
-                name: 'Token', columns:
+                name: 'token', columns:
                     [
                         {name: 'id', type: "int", isPrimary: true,generationStrategy: 'increment'},
                         {name: 'accessToken', type: 'text'},
@@ -11,12 +11,11 @@ export class CreateTableToken1660125541880 implements MigrationInterface {
                         {name: 'userId', type: 'int'},
 
                     ], foreignKeys: [new TableForeignKey({
-                    name: 'userIdForeignKey',
                     columnNames: ["userId"],
                     referencedColumnNames: ["id"],
-                    referencedTableName: "User",
+                    referencedTableName: "user",
                     onDelete: "CASCADE",
-                    onUpdate: 'CASCADE'
+
                 })]
             })
         )

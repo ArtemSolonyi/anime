@@ -4,7 +4,7 @@ export class CreateTableSetting1660125553275 implements MigrationInterface {
 
         public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(new Table({
-            name: 'Setting', columns: [
+            name: 'setting', columns: [
                 {name: "id", type: "int", isPrimary: true, generationStrategy: 'increment'},
                 {name: 'userId', type: "int"},
                 {name: 'passwordConfirmationCode', type: 'int'},
@@ -15,7 +15,7 @@ export class CreateTableSetting1660125553275 implements MigrationInterface {
             foreignKeys: [new TableForeignKey({
                 columnNames: ["userId"],
                 referencedColumnNames: ["id"],
-                referencedTableName: "User",
+                referencedTableName: "user",
                 onDelete: "CASCADE",
             })]
         }))
