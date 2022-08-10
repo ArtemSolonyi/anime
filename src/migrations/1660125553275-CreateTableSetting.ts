@@ -5,7 +5,7 @@ export class CreateTableSetting1660125553275 implements MigrationInterface {
         public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(new Table({
             name: 'Setting', columns: [
-                {name: "id", type: "bigint", isPrimary: true, generationStrategy: 'increment'},
+                {name: "id", type: "int", isPrimary: true, generationStrategy: 'increment'},
                 {name: 'userId', type: "int"},
                 {name: 'passwordConfirmationCode', type: 'int'},
                 {name:"accessToChangingPassword",type:'boolean'},
