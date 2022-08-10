@@ -5,7 +5,7 @@ export class CreateTableToken1660125541880 implements MigrationInterface {
         await queryRunner.createTable(new Table({
                 name: 'Token', columns:
                     [
-                        {name: 'id', type: "int", isPrimary: true},
+                        {name: 'id', type: "int", isPrimary: true,generationStrategy: 'increment'},
                         {name: 'accessToken', type: 'text'},
                         {name: 'refreshToken', type: 'text'},
                         {name: 'userId', type: 'int'},
