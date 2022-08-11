@@ -2,7 +2,7 @@ import {Entity, Column, PrimaryGeneratedColumn} from 'typeorm';
 
 @Entity()
 export class Item {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('increment')
     id: number;
     @Column()
     title: string
@@ -11,21 +11,21 @@ export class Item {
     @Column()
     studio: string
     @Column()
-    description:string
+    description: string
     @Column()
-    author:string
+    author: string
     @Column()
-    season:string
+    season: string
     @Column()
-    year:number
+    year: number
     @Column()
-    userId:number
+    userId: number
     @Column()
-    image:string
+    image: string
     @Column()
-    typeInfo:string
+    typeInfo: string
+    @Column({type:"json"})
+    watchStatus: string
     @Column()
-    watchStatus:string
-    @Column()
-    favourite:boolean
+    favourite: boolean
 }

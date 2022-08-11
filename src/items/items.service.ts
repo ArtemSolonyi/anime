@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {ForbiddenException, HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {CreateItemDto} from './dto/create-item.dto';
 import {UpdateItemDto} from './dto/update-item.dto';
 import {InjectRepository} from "@nestjs/typeorm";
@@ -13,12 +13,11 @@ export class ItemsService {
 
     async create(createItemDto: CreateItemDto) {
         const item = await this.itemRepository.create(createItemDto)
-        console.log(item)
-        return this.itemRepository.save(item)
+        return await this.itemRepository.save(item)
     }
 
-    findAll() {
-        return this.itemRepository.find()
+    async findAll(userId: number) {
+        return await this.itemRepository.findBy({userId: userId})
     }
 
     findOne(id: number) {
@@ -26,10 +25,24 @@ export class ItemsService {
     }
 
     async update(updateItemDto: UpdateItemDto) {
-        return await this.itemRepository.update({id: updateItemDto.id}, updateItemDto)
+        const item = await this.itemRepository.findOne({where: {id: updateItemDto.id, userId: updateItemDto.userId}})
+        if (item) {
+            return this.itemRepository.save({...item, ...updateItemDto})
+        } else {
+            throw new ForbiddenException("You don't have permission")
+        }
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} item`;
+    async remove(id:number,userId:number) {
+        const removeItem = await this.itemRepository.createQueryBuilder('item')
+            .where('item.id =:id',{id:id})
+            .andWhere('item.userId=:userId',{userId:userId})
+            .delete()
+            .execute()
+        if (removeItem.affected===1) {
+            throw new HttpException("Item was successfully delete", HttpStatus.OK)
+        } else {
+            throw new HttpException("Item wasn't delete", HttpStatus.NOT_FOUND)
+        }
     }
 }

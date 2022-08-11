@@ -1,8 +1,7 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Head, Query} from '@nestjs/common';
 import {ItemsService} from './items.service';
 import {CreateItemDto} from './dto/create-item.dto';
 import {UpdateItemDto} from './dto/update-item.dto';
-
 
 
 @Controller('items')
@@ -14,10 +13,13 @@ export class ItemsController {
     async create(@Body() createItemDto: CreateItemDto) {
         return await this.itemsService.create(createItemDto);
     }
-
+    @Get('/filter')
+    async filter(@Query() genre: any) {
+     console.log(genre)
+    }
     @Get()
-    findAll() {
-        return this.itemsService.findAll();
+    async findAll(@Body() userId: number) {
+        return await this.itemsService.findAll(userId);
     }
 
     @Get(':id')
@@ -25,13 +27,15 @@ export class ItemsController {
         return this.itemsService.findOne(+id);
     }
 
-    @Patch(':id')
+    @Patch('')
     async update(@Body() updateItemDto: UpdateItemDto) {
         return await this.itemsService.update(updateItemDto);
     }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.itemsService.remove(+id);
+
+
+    @Delete('')
+    async remove(@Query('id') id: string, @Body() body: { userId: number }) {
+        return await this.itemsService.remove(+id, body.userId);
     }
 }

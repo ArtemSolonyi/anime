@@ -6,7 +6,7 @@ export class CreateTableProfile1660125548205 implements MigrationInterface {
         await queryRunner.createTable(new Table({
                 name: 'profile', columns:
                     [
-                        {name: 'id', type: "int", isPrimary: true, generationStrategy: 'increment'},
+                        {name: 'id', type: "int", isPrimary: true,generationStrategy: 'increment',isGenerated:true},
                         {name: 'userId', type: 'int'},
                         {name: 'avatar', type: 'text'},
 

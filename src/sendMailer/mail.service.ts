@@ -12,7 +12,7 @@ export class MailService {
     });
 
     public async activateAccount(email: string, tempKey: string) {
-        await this.sendMailTo(email, `<a href="https://localhost:3000/auth/confirmationEmail/active/${tempKey}">Нажми</a>`)
+        await this.sendMailTo(email, `<a href="https://localhost:3000/api/v1/auth/confirmationEmail/active/${tempKey}">Нажми</a>`)
     }
 
     public async sendLetterToNewEmailForChangingEmail(email: string, secretTokenForLinkConfirmEmail: string): Promise<HttpException> {

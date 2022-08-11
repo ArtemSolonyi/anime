@@ -1,8 +1,7 @@
 import {IsNotEmpty} from "class-validator";
 
 export class ChangingUsernameDto {
-    @IsNotEmpty()
-    userId: number
+    userId?: number
     @IsNotEmpty()
     username: string
 }

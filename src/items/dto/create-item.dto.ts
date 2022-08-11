@@ -41,9 +41,9 @@ export class CreateItemDto {
     @IsNotEmpty()
     typeInfo: string
 
-    @IsString()
+
     @IsNotEmpty()
-    watchStatus:string
+    watchStatus:any
 
     @IsNotEmpty()
     @IsBoolean()

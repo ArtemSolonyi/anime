@@ -5,7 +5,8 @@ export class CreateTableItem1660121621527 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(new Table({
             name: "item", columns: [{
-                name: "id", type: "int", isPrimary: true,generationStrategy: 'increment'
+                    name: "id", type: "int", isPrimary: true, generationStrategy: 'increment',isGenerated: true,
+
             },
                 {
                     name: 'title', type: "text"
@@ -38,7 +39,7 @@ export class CreateTableItem1660121621527 implements MigrationInterface {
                     name: 'typeInfo', type: "text"
                 },
                 {
-                    name: 'watchStatus', type: "varchar"
+                    name: 'watchStatus', type: "json"
                 },
                 {
                     name: "favourite", type: 'bool'

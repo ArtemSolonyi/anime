@@ -1,6 +1,4 @@
 import {MiddlewareConsumer, Module, NestModule, ValidationPipe} from '@nestjs/common';
-import {AppController} from './app.controller';
-import {AppService} from './app.service';
 import {ItemsModule} from './items/items.module';
 import {APP_PIPE} from "@nestjs/core";
 import {TypeOrmModule} from "@nestjs/typeorm"
@@ -16,6 +14,10 @@ import {SettingsModule} from './settings/settings.module';
 import {ConfigModule} from "@nestjs/config";
 import * as dotenv from "dotenv"
 import {typeSettingsMySql} from "../config";
+import {FileModule} from "./file.controller/file.module";
+import {ServeStaticModule} from "@nestjs/serve-static";
+import {join} from "path";
+import {SettingsController} from "./settings/settings.controller";
 dotenv.config()
 
 @Module({
@@ -29,23 +31,23 @@ dotenv.config()
         SettingsModule,
         ConfigModule.forRoot({
             isGlobal:true
+        }),FileModule, ServeStaticModule.forRoot({
+            rootPath: join(__dirname, '../..', 'build'),
         })
     ],
-    controllers: [AppController],
+    controllers: [],
     providers: [{
         provide: APP_PIPE,
         useClass: ValidationPipe,
-    }, AppService],
+    }],
 })
-//poolup
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer.apply(isAuthorized)
             .exclude(
                 'settings/request/forgot/password',
                 'settings/sending/forgot/password',
-                'settings/sending/forgot/password').forRoutes(ItemsController, ProfileController)
-
+                'settings/sending/forgot/password').forRoutes(ItemsController, ProfileController,SettingsController)
     }
 }
 
