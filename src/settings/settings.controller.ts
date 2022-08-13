@@ -2,7 +2,7 @@ import {Controller, Get, Post, Body, Patch, Param, Delete, Redirect} from '@nest
 import {SettingsService} from './settings.service';
 import {CreateSettingDto} from './dto/create-setting.dto';
 import {UpdateSettingDto} from './dto/update-setting.dto';
-import {ChangingUsernameDto} from "../profile/dto/changing.nickname.dto";
+import {ChangingNicknameDtoDto} from "../profile/dto/changing.nickname.dto";
 import {EmailDto} from "../profile/dto/email.dto";
 import {RecoveryPasswordDto} from "./dto/recovery.password.dto";
 import {NewPasswordDto} from "./dto/new.password.dto";
@@ -14,9 +14,9 @@ export class SettingsController {
     constructor(private readonly settingsService: SettingsService) {
     }
 
-    @Patch('/change/username')
-    async changeNickname(@Body() body: ChangingUsernameDto) {
-        return await this.settingsService.changeUsername(body)
+    @Patch('/change/nickname')
+    async changeNickname(@Body() body: ChangingNicknameDtoDto) {
+        return await this.settingsService.changeNickname(body)
     }
 
     @Patch('/change/email')

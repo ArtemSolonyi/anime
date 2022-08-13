@@ -8,6 +8,8 @@ export class User {
     @Column()
     username:string
     @Column()
+    nickname:string
+    @Column()
     email:string
     @Column({select:false})
     password:string

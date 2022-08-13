@@ -18,6 +18,7 @@ import {FileModule} from "./file.controller/file.module";
 import {ServeStaticModule} from "@nestjs/serve-static";
 import {join} from "path";
 import {SettingsController} from "./settings/settings.controller";
+import {FilterModule} from "./filter/filter.module";
 dotenv.config()
 
 @Module({
@@ -29,6 +30,7 @@ dotenv.config()
         JwtDecodeModule,
         ProfileModule,
         SettingsModule,
+        FilterModule.forRoot(),
         ConfigModule.forRoot({
             isGlobal:true
         }),FileModule, ServeStaticModule.forRoot({
@@ -43,6 +45,7 @@ dotenv.config()
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
+
         consumer.apply(isAuthorized)
             .exclude(
                 'settings/request/forgot/password',

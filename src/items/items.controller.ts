@@ -13,10 +13,17 @@ export class ItemsController {
     async create(@Body() createItemDto: CreateItemDto) {
         return await this.itemsService.create(createItemDto);
     }
+
     @Get('/filter')
-    async filter(@Query() genre: any) {
-     console.log(genre)
+    async filter(@Query() queries: any, @Body() body: { userId: number }) {
+        return await this.itemsService.filter({...queries, userId: body.userId})
     }
+
+    @Get('/genres')
+    async getGenres() {
+        return await this.itemsService.getGenres()
+    }
+
     @Get()
     async findAll(@Body() userId: number) {
         return await this.itemsService.findAll(userId);
@@ -31,7 +38,6 @@ export class ItemsController {
     async update(@Body() updateItemDto: UpdateItemDto) {
         return await this.itemsService.update(updateItemDto);
     }
-
 
 
     @Delete('')

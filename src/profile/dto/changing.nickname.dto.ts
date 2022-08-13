@@ -1,7 +1,7 @@
 import {IsNotEmpty} from "class-validator";
 
-export class ChangingUsernameDto {
+export class ChangingNicknameDtoDto {
     userId?: number
     @IsNotEmpty()
-    username: string
+    nickname: string
 }

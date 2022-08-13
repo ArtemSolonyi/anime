@@ -1,4 +1,5 @@
-import {Entity, Column, PrimaryGeneratedColumn} from 'typeorm';
+import {Entity, Column, PrimaryGeneratedColumn, OneToOne, OneToMany} from 'typeorm';
+import {ItemGenre} from "./item_genre.entity";
 
 @Entity()
 export class Item {
@@ -6,8 +7,6 @@ export class Item {
     id: number;
     @Column()
     title: string
-    @Column()
-    genre: string
     @Column()
     studio: string
     @Column()
@@ -24,8 +23,12 @@ export class Item {
     image: string
     @Column()
     typeInfo: string
-    @Column({type:"json"})
+    @Column()
     watchStatus: string
     @Column()
     favourite: boolean
+
+    @OneToMany(()=>ItemGenre,(itemGenre)=>itemGenre.item,)
+    itemGenre:ItemGenre[]
+
 }

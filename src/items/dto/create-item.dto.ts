@@ -1,4 +1,5 @@
 import {IsBoolean, IsNotEmpty, IsNumber, IsString} from "class-validator";
+import {Genre} from "../../genre/genre.entity";
 
 export class CreateItemDto {
     id?:number
@@ -7,8 +8,7 @@ export class CreateItemDto {
     title: string
 
     @IsNotEmpty()
-    @IsString()
-    genre: string
+    genre: {id:number,genreName:string}[]
 
     @IsNotEmpty()
     @IsString()

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import {CreateSettingDto} from './dto/create-setting.dto';
 import {UpdateSettingDto} from './dto/update-setting.dto';
-import {ChangingUsernameDto} from "../profile/dto/changing.nickname.dto";
+import {ChangingNicknameDtoDto} from "../profile/dto/changing.nickname.dto";
 import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "../users/entities/user.entity";
 import {Repository} from "typeorm";
@@ -31,13 +31,13 @@ export class SettingsService {
         private mailService: MailService,
         private config: ConfigService) {
     }
-    public async changeUsername(body: ChangingUsernameDto) {
-        const candidate = await this.userRepository.findOneBy({username: body.username})
+    public async changeNickname(body: ChangingNicknameDtoDto) {
+        const candidate = await this.userRepository.findOneBy({username: body.nickname})
         if (candidate) {
             throw new UnprocessableEntityException("Username already exist")
         }
         const personRow = await this.userRepository.findOneBy({id: body.userId})
-        personRow.username = body.username
+        personRow.nickname = body.nickname
         return await this.userRepository.save(personRow)
     }
 
