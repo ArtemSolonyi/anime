@@ -11,6 +11,13 @@ export class FilterService {
         return this
     }
 
+    addSearch(searchTitleText: string) {
+        if (searchTitleText) {
+            this.builder = this.builder.andWhere("item.title LIKE '%'  :title  '%'", {title: searchTitleText})
+        }
+        return this
+    }
+
     addGenre(genre: string[]) {
         if (genre) {
             let genres: number[] = genre.map((e) => Number(e))

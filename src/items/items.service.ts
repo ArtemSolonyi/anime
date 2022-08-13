@@ -51,7 +51,7 @@ export class ItemsService {
 
     }
 
-    async filter(queries:FilterType):Promise<FilterService> {
+    async filter(queries: FilterType): Promise<FilterService> {
         let table: SelectQueryBuilder<Item> = await this.itemRepository.createQueryBuilder('item')
             .leftJoinAndSelect('item.itemGenre', 'itemGenre')
             .leftJoinAndSelect('itemGenre.genre', 'genre')
@@ -63,6 +63,7 @@ export class ItemsService {
             .addFavourite(queries.favourite)
             .addYear(queries.year)
             .addWatchStatus(queries.watchStatus)
+            .addSearch(queries.searchTitleText)
             .getMany()
             .build()
     }

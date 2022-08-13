@@ -4,5 +4,6 @@ export type FilterType = {
     userId: number,
     season: string[],
     watchStatus: string,
-    favourite: string
+    favourite: string,
+    searchTitleText:string
 }
