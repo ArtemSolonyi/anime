@@ -73,7 +73,10 @@ export class ItemsService {
     }
 
     async findAll(userId: number) {
-        return await this.itemRepository.findBy({userId: userId})
+        return  await this.itemRepository.createQueryBuilder('item')
+            .leftJoinAndSelect('item.itemGenre', 'itemGenre')
+            .leftJoinAndSelect('itemGenre.genre', 'genre')
+            .where({userId: userId}).select(['item', 'itemGenre.genreId', 'genre.genreName']).getMany()
     }
 
     findOne(id: number) {
