@@ -34,7 +34,7 @@ export class ItemsService {
                 genreId: genre.id
             })
         )
-        const isExist = await this.genreRepository.createQueryBuilder()
+        const isExist = await this.genreRepository.createQueryBuilder('genre')
             .where('genre.id in (:...ids)', {ids: createItemDto.genre.map((e) => e.id)})
             .getMany()
         if (isExist.length) {
