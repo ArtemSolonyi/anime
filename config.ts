@@ -14,7 +14,7 @@ export const typeSettingsMySql: any = {
     synchronize: false,
     logging: true,
     //migrations: ['./src/migrations'],
-    migrations: ['./src/migrations/*{.js}'],
+    migrations: ['dist/src/migrations/*.js'],
     //migrations: ['./src/migrations'],
     migrationsTableName: 'migrations',
 }
