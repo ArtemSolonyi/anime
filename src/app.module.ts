@@ -48,9 +48,9 @@ export class AppModule implements NestModule {
 
         consumer.apply(isAuthorized)
             .exclude(
-                'settings/request/forgot/password',
-                'settings/sending/forgot/password',
-                'settings/sending/forgot/password').forRoutes(ItemsController, ProfileController,SettingsController)
+                'api/v1/settings/request/forgot/password',
+                'api/v1/settings/sending/forgot/password',
+                'api/v1/settings/changing/forgot/password').forRoutes(ItemsController, ProfileController,SettingsController)
     }
 }
 

@@ -1,7 +1,5 @@
 import {Controller, Get, Post, Body, Patch, Param, Delete, Redirect} from '@nestjs/common';
 import {SettingsService} from './settings.service';
-import {CreateSettingDto} from './dto/create-setting.dto';
-import {UpdateSettingDto} from './dto/update-setting.dto';
 import {ChangingNicknameDtoDto} from "../profile/dto/changing.nickname.dto";
 import {EmailDto} from "../profile/dto/email.dto";
 import {RecoveryPasswordDto} from "./dto/recovery.password.dto";

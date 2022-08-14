@@ -32,7 +32,7 @@ export class SettingsService {
         private config: ConfigService) {
     }
     public async changeNickname(body: ChangingNicknameDtoDto) {
-        const candidate = await this.userRepository.findOneBy({username: body.nickname})
+        const candidate = await this.userRepository.findOneBy({nickname: body.nickname})
         if (candidate) {
             throw new UnprocessableEntityException("Username already exist")
         }
