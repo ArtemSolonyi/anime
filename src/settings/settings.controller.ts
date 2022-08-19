@@ -12,6 +12,11 @@ export class SettingsController {
     constructor(private readonly settingsService: SettingsService) {
     }
 
+    @Get()
+    async getSettingsOfUser(@Body() body:{userId:number} ) {
+        return await this.settingsService.getSettingsOfUser(body.userId)
+    }
+
     @Patch('/change/nickname')
     async changeNickname(@Body() body: ChangingNicknameDtoDto) {
         return await this.settingsService.changeNickname(body)
@@ -23,7 +28,7 @@ export class SettingsController {
     }
 
     @Get('/change/email/:secretTokenFromLinkConfirmedEmail')
-    async async(@Param("secretTokenFromLinkConfirmedEmail") secretTokenFromLinkConfirmedEmail:string) {
+    async async(@Param("secretTokenFromLinkConfirmedEmail") secretTokenFromLinkConfirmedEmail: string) {
         return await this.settingsService.changingEmail(secretTokenFromLinkConfirmedEmail)
     }
 
@@ -41,7 +46,6 @@ export class SettingsController {
     async changingForgotPasswordByEmailAndCode(@Body() body: NewPasswordDto) {
         return await this.settingsService.changingForgotPasswordByEmailAndCode(body)
     }
-
 
 
 }

@@ -32,7 +32,7 @@ export class CreateTableItem1660121621527 implements MigrationInterface {
                     name: 'userId', type: "int"
                 },
                 {
-                    name: 'image', type: "text"
+                    name: 'image', type: "longtext"
                 },
                 {
                     name: 'typeInfo', type: "text"

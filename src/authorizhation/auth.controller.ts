@@ -7,9 +7,9 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {
     }
 
-    @Post('/register')
+    @Post('/registration')
     private async register(@Body() body: AuthDto) {
-        return await this.authService.getRegisteredUser(body)
+        return await this.authService.registrationOfUser(body)
     }
 
     @Post('/login')
@@ -26,4 +26,5 @@ export class AuthController {
     private async mailActivation(@Param('tempKey') tempKey:string) {
         return await this.authService.mailActivation(tempKey)
     }
+
 }

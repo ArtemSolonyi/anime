@@ -40,7 +40,7 @@ export class TokenService {
     }
 
     public verify(token: string) {
-        return this.jwtService.verify(token, {secret: process.env.SECRET_KEY_REFRESH_JWT!})
+        return this.jwtService.verify(token, {secret:this.config.get("SECRET_KEY_REFRESH_JWT")})
     }
 
     public async saveCreatedTokens(): Promise<void> {

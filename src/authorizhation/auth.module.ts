@@ -17,6 +17,7 @@ import {Setting} from "../settings/entities/setting.entity";
         TypeOrmModule.forFeature([Setting])
         , forwardRef(() => TokenModule),forwardRef(()=>MailModule)],
     controllers: [AuthController],
+    exports:[AuthService],
     providers: [AuthService]
 })
 export class AuthModule {

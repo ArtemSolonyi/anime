@@ -1,20 +1,20 @@
-
 import {Entity, Column, PrimaryGeneratedColumn} from 'typeorm';
 
 @Entity()
 export class User {
-@PrimaryGeneratedColumn()
-    id:number
+    @Column({select: false})
+    @PrimaryGeneratedColumn()
+    id: number
     @Column()
-    username:string
+    username: string
     @Column()
-    nickname:string
+    nickname: string
     @Column()
-    email:string
-    @Column({select:false})
-    password:string
+    email: string
+    @Column({select: false})
+    password: string
     @Column()
-    role:string
+    role: string
 
 }
 

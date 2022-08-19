@@ -11,13 +11,13 @@ export class MailService {
         }
     });
 
-    public async activateAccount(email: string, tempKey: string) {
-        await this.sendMailTo(email, `<a href="https://localhost:3000/api/v1/auth/confirmationEmail/active/${tempKey}">Нажми</a>`)
+    public  activateAccount(email: string, tempKey: string) {
+         this.sendMailTo(email, `<a href="https://api-v1-anime-library.herokuapp.com/api/v1/auth/confirmationEmail/active/${tempKey}">Активировать аккаунт</a>`).then(r => r)
     }
 
-    public async sendLetterToNewEmailForChangingEmail(email: string, secretTokenForLinkConfirmEmail: string): Promise<HttpException> {
-        const sendingLetterOnNewEmail = await this.sendMailTo(email,
-            `<a href="https://localhost:3000/settings/change/email/${secretTokenForLinkConfirmEmail}">Подтвердить почту </a>`)
+    public sendLetterToNewEmailForChangingEmail(email: string, secretTokenForLinkConfirmEmail: string): Promise<HttpException> {
+        const sendingLetterOnNewEmail = this.sendMailTo(email,
+            `<a href="https://api-v1-anime-library.herokuapp.com/api/v1/settings/change/email/${secretTokenForLinkConfirmEmail}">Подтвердить почту </a>`)
         if (sendingLetterOnNewEmail) {
             throw new HttpException('Letter was sending on your new email success', HttpStatus.OK)
         } else {
@@ -25,8 +25,8 @@ export class MailService {
         }
     }
 
-    public async sendCodeForConfirmationRecoveryPassword(email: string, code: number): Promise<HttpException> {
-        const sendingCode = await this.sendMailTo(email, `<h3>Код для подтверждения восстановления пароля <string> ${code}</string></h3>`)
+    public sendCodeForConfirmationRecoveryPassword(email: string, code: number): Promise<HttpException> {
+        const sendingCode = this.sendMailTo(email, `<h3>Код для подтверждения восстановления пароля <string> ${code}</string></h3>`)
         if (sendingCode) {
             throw new HttpException('Code was sending on your email success', HttpStatus.OK)
         } else {
@@ -34,8 +34,8 @@ export class MailService {
         }
     }
 
-    private async sendMailTo(emailTo: string, htmlText: string): Promise<SMTPTransport.SentMessageInfo> {
-        return await this.transporter.sendMail({
+    private sendMailTo(emailTo: string, htmlText: string): Promise<SMTPTransport.SentMessageInfo> {
+        return this.transporter.sendMail({
             to: `${emailTo}`, // list of receivers
             subject: "Hello ✔", // Subject line
             html: `${htmlText}`, // html body

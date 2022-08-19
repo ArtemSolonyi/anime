@@ -7,9 +7,10 @@ export class UserFactory {
     private readonly _email: string
     private _password: string
     private readonly _role: AuthRole
-
+    private readonly _nickname:string
     constructor(bodyAuth: AuthDto) {
         this._username = bodyAuth.username
+        this._nickname = bodyAuth.username
         this._email = bodyAuth.email
         this._password = bodyAuth.password
         this._role = AuthRole.COMMON
@@ -19,7 +20,9 @@ export class UserFactory {
     public get role() {
         return this._role
     }
-
+    public get nickname(){
+        return this._nickname
+    }
     public get password() {
         return this._password
     }
@@ -33,8 +36,7 @@ export class UserFactory {
     }
 
     public async hashPassword() {
-
         const salt = bcrypt.genSaltSync(5)
-        this._password = await bcrypt.hashSync(this._password, salt);
+        this._password = await bcrypt.hash(this._password, salt);
     }
 }

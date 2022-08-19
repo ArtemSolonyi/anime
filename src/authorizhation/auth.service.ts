@@ -5,7 +5,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {
     BadRequestException,
-    ConflictException,
+    ConflictException, HttpException, HttpStatus,
     Injectable,
     NotFoundException, PreconditionFailedException,
     UnprocessableEntityException
@@ -30,29 +30,27 @@ export class AuthService {
     constructor(@InjectRepository(User) private userRepository: Repository<User>,
                 @InjectRepository(Setting) private settingRepository: Repository<Setting>,
                 private tokenService: TokenService,
-                private config:ConfigService,
+                private config: ConfigService,
                 private mailService: MailService) {
     }
 
-    async getRegisteredUser(body: AuthDto): Promise<ConflictException | void> {
+    async registrationOfUser(body: AuthDto): Promise<ConflictException | HttpException> {
         const user = new UserFactory(body)
         await user.hashPassword()
-        if (await this._checkForAvailableUser(user)) {
-            throw new BadRequestException('User already exist')
-        } else {
-            const registeredUser = await this.userRepository.create(user)
-            const savedUser = await this.userRepository.save(registeredUser)
-            const tempKey = await this.tokenService.createToken({userId: savedUser.id}, this.config.get("SECRET_KEY_REFRESH_JWT"), '30d')
-            const setting = await this.settingRepository.create({
-                userId: savedUser.id,
-                emailIsActivated: false,
-                tempKeyForActivationEmail: tempKey
-            })
-            await this.settingRepository.save(setting)
-            await this.mailService.activateAccount(registeredUser.email, tempKey)
-        }
+        await this._checkForAvailableUser(user)
+        const registeredUser = await this.userRepository.create(user)
+        const savedUser = await this.userRepository.save(registeredUser)
+        const tempKey = await this.tokenService.createToken(
+            {userId: savedUser.id}, this.config.get("SECRET_KEY_REFRESH_JWT"), '30d')
+        const setting = await this.settingRepository.create({
+            userId: savedUser.id,
+            emailIsActivated: false,
+            tempKeyForActivationEmail: tempKey
+        })
+        await this.settingRepository.save(setting)
+        this.mailService.activateAccount(registeredUser.email, tempKey)
+        throw new HttpException("Letter was sending to email",HttpStatus.OK)
     }
-
 
     async mailActivation(token: string): Promise<IUserInfo | PreconditionFailedException> {
         let userId = this.tokenService.verify(token).userId
@@ -96,24 +94,30 @@ export class AuthService {
                 throw new UnprocessableEntityException("Password doesn't resemblance")
             }
         } else {
-            throw new NotFoundException('UserEntity not found')
+            throw new NotFoundException('User not exist')
         }
     }
 
-    async refresh(body: AuthRefreshDto) {
-        const userId: number = this.tokenService.verify(body.refreshToken)
-        await this.tokenService.updateTokens(userId)
-        return this.tokenService.getPairTokens()
+    async refresh(body: AuthRefreshDto):Promise<Partial<IUserInfo>> {
+        const data:{userId:number} = this.tokenService.verify(body.refreshToken)
+        await this.tokenService.updateTokens(data.userId)
+        return {tokens:this.tokenService.getPairTokens()}
     }
 
     private getInfoAboutUser(user: User): IUser {
         return {username: user.username, email: user.email, role: user.role}
     }
 
-    private async _checkForAvailableUser(user: UserFactory): Promise<boolean> {
+    private async _checkForAvailableUser(user: UserFactory): Promise<ConflictException|void> {
         const candidateUserWithUsername: User | null = await this.userRepository.findOneBy({username: user.username})
         const candidateUserWithEmail: User | null = await this.userRepository.findOneBy({email: user.email})
-        return !!(candidateUserWithUsername || candidateUserWithEmail);
+        if (candidateUserWithEmail) {
+            throw new ConflictException("Email already exist")
+        }
+        if (candidateUserWithUsername) {
+            throw new ConflictException("Username already exist")
+        }
+
     }
 
 }

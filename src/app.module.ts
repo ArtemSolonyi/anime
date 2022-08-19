@@ -19,6 +19,8 @@ import {ServeStaticModule} from "@nestjs/serve-static";
 import {join} from "path";
 import {SettingsController} from "./settings/settings.controller";
 import {FilterModule} from "./filter/filter.module";
+import { OnlineStatusModule } from './online-status/online-status.module';
+
 dotenv.config()
 
 @Module({
@@ -35,7 +37,7 @@ dotenv.config()
             isGlobal:true
         }),FileModule, ServeStaticModule.forRoot({
             rootPath: join(__dirname, '../..', 'build'),
-        })
+        }), OnlineStatusModule
     ],
     controllers: [],
     providers: [{

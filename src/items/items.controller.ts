@@ -25,8 +25,8 @@ export class ItemsController {
     }
 
     @Get()
-    async findAll(@Body() userId: number) {
-        return await this.itemsService.findAll(userId);
+    async findAll(@Body() body: { userId:number }) {
+        return await this.itemsService.findAll(body.userId);
     }
 
     @Get(':id')

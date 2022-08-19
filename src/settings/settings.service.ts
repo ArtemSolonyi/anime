@@ -3,11 +3,9 @@ import {
     HttpStatus,
     Injectable,
     NotFoundException,
-    Redirect,
     UnprocessableEntityException
 } from '@nestjs/common';
-import {CreateSettingDto} from './dto/create-setting.dto';
-import {UpdateSettingDto} from './dto/update-setting.dto';
+
 import {ChangingNicknameDtoDto} from "../profile/dto/changing.nickname.dto";
 import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "../users/entities/user.entity";
@@ -21,16 +19,23 @@ import {RequestChangingEmailDto} from "../profile/dto/requestChangingEmailDto";
 import {JwtService} from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import {ConfigService} from "@nestjs/config";
+import {AuthService} from "../authorizhation/auth.service";
 
 @Injectable()
 export class SettingsService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(Setting) private settingRepository: Repository<Setting>,
+        private authService:AuthService,
         private jwtService: JwtService,
         private mailService: MailService,
         private config: ConfigService) {
     }
+
+    public async getSettingsOfUser(userId: number) {
+        return await this.userRepository.findOne({where:{id:userId},select:{email:true,nickname:true}})
+    }
+
     public async changeNickname(body: ChangingNicknameDtoDto) {
         const candidate = await this.userRepository.findOneBy({nickname: body.nickname})
         if (candidate) {
@@ -94,7 +99,7 @@ export class SettingsService {
         }
     }
 
-    public async changingForgotPasswordByEmailAndCode(body: NewPasswordDto): Promise<HttpException> {
+    public async changingForgotPasswordByEmailAndCode(body: NewPasswordDto): Promise<any> {
         const user = await this.userRepository.findOneBy({email: body.email})
         if (!user) {
             throw new HttpException("Email not exist", HttpStatus.NOT_FOUND)
@@ -105,7 +110,7 @@ export class SettingsService {
             await this.userRepository.save(user)
             settings.accessToChangingPassword = false
             await this.settingRepository.save(settings)
-            throw new HttpException("Password has been successfully changed", HttpStatus.CREATED)
+            return await this.authService.login({login:body.email,password:body.newPassword})
         } else {
             throw new HttpException("You don't have permission", HttpStatus.FORBIDDEN)
         }

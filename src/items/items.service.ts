@@ -44,7 +44,8 @@ export class ItemsService {
                 .into(ItemGenre)
                 .values(itemGenres)
                 .execute()
-            return {...savedItem, genre: createItemDto.genre}
+            return this.findAll(createItemDto.userId)
+            //return {...savedItem, genre: createItemDto.genre}
         } else {
             throw new UnprocessableEntityException('Genres not exist')
         }
@@ -73,7 +74,7 @@ export class ItemsService {
     }
 
     async findAll(userId: number) {
-        return  await this.itemRepository.createQueryBuilder('item')
+        return await this.itemRepository.createQueryBuilder('item')
             .leftJoinAndSelect('item.itemGenre', 'itemGenre')
             .leftJoinAndSelect('itemGenre.genre', 'genre')
             .where({userId: userId}).select(['item', 'itemGenre.genreId', 'genre.genreName']).getMany()
@@ -86,10 +87,12 @@ export class ItemsService {
     async update(updateItemDto: UpdateItemDto) {
         const item = await this.itemRepository.findOne({where: {id: updateItemDto.id, userId: updateItemDto.userId}})
         if (item) {
-            return this.itemRepository.save({...item, ...updateItemDto})
+            await this.itemRepository.save({...item, ...updateItemDto})
+            return await this.findAll(updateItemDto.userId)
         } else {
             throw new ForbiddenException("You don't have permission")
         }
+
     }
 
     async remove(id: number, userId: number) {
@@ -99,7 +102,7 @@ export class ItemsService {
             .delete()
             .execute()
         if (removeItem.affected === 1) {
-            throw new HttpException("Item was successfully delete", HttpStatus.OK)
+            return await this.findAll(userId)
         } else {
             throw new HttpException("Item wasn't delete", HttpStatus.NOT_FOUND)
         }

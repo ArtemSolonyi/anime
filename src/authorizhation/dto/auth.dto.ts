@@ -9,7 +9,7 @@ export class AuthDto {
     @Length(5)
     readonly email: string
     @IsString()
-    @Length(8)
+    @Length(7)
     readonly password: string
 
     readonly role?:string
@@ -19,7 +19,7 @@ export class AuthLoginDto{
     @Length(3)
      login: string
     @IsString()
-    @Length(8)
+    @Length(7)
      password: string
 }
 export class AuthRefreshDto {
