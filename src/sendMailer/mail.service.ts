@@ -12,12 +12,12 @@ export class MailService {
     });
 
     public  activateAccount(email: string, tempKey: string) {
-         this.sendMailTo(email, `<a href="https://api-v1-anime-library.herokuapp.com/api/v1/auth/confirmationEmail/active/${tempKey}">Активировать аккаунт</a>`).then(r => r)
+         this.sendMailTo(email, `<a href="https://api-v1-anime-library.herokuapp.com/auth/confirmationEmail/active/${tempKey}">Активировать аккаунт</a>`).then(r => r)
     }
 
     public sendLetterToNewEmailForChangingEmail(email: string, secretTokenForLinkConfirmEmail: string): Promise<HttpException> {
         const sendingLetterOnNewEmail = this.sendMailTo(email,
-            `<a href="https://api-v1-anime-library.herokuapp.com/api/v1/settings/change/email/${secretTokenForLinkConfirmEmail}">Подтвердить почту </a>`)
+            `<a href="https://api-v1-anime-library.herokuapp.com/settings/change/email/${secretTokenForLinkConfirmEmail}">Подтвердить почту </a>`)
         if (sendingLetterOnNewEmail) {
             throw new HttpException('Letter was sending on your new email success', HttpStatus.OK)
         } else {
