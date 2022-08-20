@@ -49,7 +49,7 @@ export class AuthService {
         })
         await this.settingRepository.save(setting)
         this.mailService.activateAccount(registeredUser.email, tempKey)
-        throw new HttpException("Letter was sending to email",HttpStatus.OK)
+        throw new HttpException("Letter was sending to email", HttpStatus.OK)
     }
 
     async mailActivation(token: string): Promise<IUserInfo | PreconditionFailedException> {
@@ -98,17 +98,18 @@ export class AuthService {
         }
     }
 
-    async refresh(body: AuthRefreshDto):Promise<Partial<IUserInfo>> {
-        const data:{userId:number} = this.tokenService.verify(body.refreshToken)
+    async refresh(body: AuthRefreshDto): Promise<{ tokens: ITokens; user: { username: string } }> {
+        const data: { userId: number } = this.tokenService.verify(body.refreshToken)
         await this.tokenService.updateTokens(data.userId)
-        return {tokens:this.tokenService.getPairTokens()}
+        const user: User = await this.userRepository.findOneBy({id: data.userId})
+        return {tokens: this.tokenService.getPairTokens(), user: {username: user.username}}
     }
 
     private getInfoAboutUser(user: User): IUser {
         return {username: user.username, email: user.email, role: user.role}
     }
 
-    private async _checkForAvailableUser(user: UserFactory): Promise<ConflictException|void> {
+    private async _checkForAvailableUser(user: UserFactory): Promise<ConflictException | void> {
         const candidateUserWithUsername: User | null = await this.userRepository.findOneBy({username: user.username})
         const candidateUserWithEmail: User | null = await this.userRepository.findOneBy({email: user.email})
         if (candidateUserWithEmail) {

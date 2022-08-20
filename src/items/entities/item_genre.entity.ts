@@ -1,7 +1,6 @@
-import {Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {Item} from "./item.entity";
 import {Genre} from "../../genre/genre.entity";
-import {Exclude} from "class-transformer";
 
 @Entity()
 export class ItemGenre {

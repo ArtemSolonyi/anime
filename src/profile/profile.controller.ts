@@ -1,14 +1,15 @@
-import {Body, Controller, Get, Patch} from "@nestjs/common";
+import {Body, Controller, Get, Param, Query} from "@nestjs/common";
 
 import {ProfileService} from "./profile.service";
-import {EmailDto} from "./dto/email.dto";
 
 @Controller('profile')
 export class ProfileController {
-    constructor(private profileService: ProfileService) {}
-
-    async getInfoAboutProfile(){
-        return await this.profileService
+    constructor(private profileService: ProfileService) {
     }
+    @Get('')
+    async getPublicProfileOfUser(@Body() body:{userId:number}, @Query() queries: {username:string}) {
+        return await this.profileService.getPublicProfileOfUser({userId:body.userId,username:queries.username});
+    }
+
 
 }

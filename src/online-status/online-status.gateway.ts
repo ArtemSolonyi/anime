@@ -3,15 +3,11 @@ import {
     SubscribeMessage,
     MessageBody,
     WebSocketServer,
-    WsResponse,
     OnGatewayConnection, OnGatewayDisconnect
 } from '@nestjs/websockets';
 import {OnlineStatusService} from './online-status.service';
-
 import {UpdateOnlineStatusDto} from './dto/update-online-status.dto';
-import {from, map, Observable} from "rxjs";
-import {ClientOptions, Server} from "ws";
-
+import {Socket} from "socket.io";
 
 
 @WebSocketGateway({
@@ -19,49 +15,34 @@ import {ClientOptions, Server} from "ws";
         origin: '*',
     }
 })
-export class OnlineStatusGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class OnlineStatusGateway{
     @WebSocketServer()
-    server: Server;
-    client: any
+    server: Socket;
+    clients: Map<string, string>;
 
     constructor(private readonly onlineStatusService: OnlineStatusService) {
+        this.clients = new Map()
     }
 
+    @SubscribeMessage('dic')
+    async dic(client: any, data: any) {
+        client.leave('online')
+        this.server.to(`${data.username}`).emit('userInOnline',{online:false})
+    }
 
     @SubscribeMessage('con')
-    connection(client:any) {
-        this.server.emit('events',client.id)
+    async connection(client: Socket, data: { username: string }) {
+        this.clients.set(data.username, client.id)
+        client.join('online')
+        const roomOnline = await this.server.in('online').allSockets()
+        this.server.to(`${data.username}`).emit('userInOnline', {online: roomOnline.has(this.clients.get(data.username))})
     }
 
-    @SubscribeMessage('identity')
-    identity(client:any,) {
-
+    @SubscribeMessage('userInOnline')
+    async userInOnline(client: any, data: any) {
+        client.join(`${data.username}`)
+        const roomOnline = await this.server.in('online').allSockets()
+        this.server.to(`${data.username}`).emit('userInOnline', {online: roomOnline.has(this.clients.get(data.username))})
     }
 
-    @SubscribeMessage('findAllOnlineStatus')
-    findAll() {
-        return this.onlineStatusService.findAll();
-    }
-
-    @SubscribeMessage('findOneOnlineStatus')
-    findOne(@MessageBody() id: number) {
-        return this.onlineStatusService.findOne(id);
-    }
-
-    @SubscribeMessage('updateOnlineStatus')
-    update(@MessageBody() updateOnlineStatusDto: UpdateOnlineStatusDto) {
-        return this.onlineStatusService.update(updateOnlineStatusDto.id, updateOnlineStatusDto);
-    }
-
-    @SubscribeMessage('removeOnlineStatus')
-    remove(@MessageBody() id: number) {
-        return this.onlineStatusService.remove(id);
-    }
-
-    handleDisconnect(client: any) {
-    }
-
-     handleConnection(client: any, ...args: any[]) {
-         this.server.emit('events', 'artem')
-    }
 }

@@ -1,4 +1,4 @@
-import {MiddlewareConsumer, Module, NestModule, ValidationPipe} from '@nestjs/common';
+import {MiddlewareConsumer, Module, NestModule, RequestMethod, ValidationPipe} from '@nestjs/common';
 import {ItemsModule} from './items/items.module';
 import {APP_PIPE} from "@nestjs/core";
 import {TypeOrmModule} from "@nestjs/typeorm"
@@ -19,7 +19,9 @@ import {ServeStaticModule} from "@nestjs/serve-static";
 import {join} from "path";
 import {SettingsController} from "./settings/settings.controller";
 import {FilterModule} from "./filter/filter.module";
-import { OnlineStatusModule } from './online-status/online-status.module';
+import {OnlineStatusModule} from './online-status/online-status.module';
+import { FriendsModule } from './friends/friends.module';
+import {FriendsController} from "./friends/friends.controller";
 
 dotenv.config()
 
@@ -36,8 +38,9 @@ dotenv.config()
         ConfigModule.forRoot({
             isGlobal:true
         }),FileModule, ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '../..', 'build'),
-        }), OnlineStatusModule
+            rootPath: join(__dirname, '../..', 'build')
+            ,exclude:['/api*'],
+        }), OnlineStatusModule, FriendsModule
     ],
     controllers: [],
     providers: [{
@@ -52,7 +55,8 @@ export class AppModule implements NestModule {
             .exclude(
                 'api/v1/settings/request/forgot/password',
                 'api/v1/settings/sending/forgot/password',
-                'api/v1/settings/changing/forgot/password').forRoutes(ItemsController, ProfileController,SettingsController)
+                'api/v1/settings/changing/forgot/password',
+                {path:'api/v1/profile',method:RequestMethod.GET}).forRoutes(ItemsController, ProfileController,SettingsController,FriendsController)
     }
 }
 

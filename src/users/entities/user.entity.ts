@@ -1,9 +1,9 @@
-import {Entity, Column, PrimaryGeneratedColumn} from 'typeorm';
+import {Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn} from 'typeorm';
+import {Profile} from "../../profile/entities/profile.entity";
 
 @Entity()
 export class User {
-    @Column({select: false})
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('increment')
     id: number
     @Column()
     username: string
@@ -15,6 +15,8 @@ export class User {
     password: string
     @Column()
     role: string
+    @OneToOne(()=>Profile,(profile)=>profile.user)
+    profile:Profile
 
 }
 

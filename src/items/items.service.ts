@@ -53,7 +53,8 @@ export class ItemsService {
     }
 
     async filter(queries: FilterType): Promise<FilterService> {
-        let table: SelectQueryBuilder<Item> = await this.itemRepository.createQueryBuilder('item')
+        let table: SelectQueryBuilder<Item> = await this.itemRepository
+            .createQueryBuilder('item')
             .leftJoinAndSelect('item.itemGenre', 'itemGenre')
             .leftJoinAndSelect('itemGenre.genre', 'genre')
             .where({userId: queries.userId})
