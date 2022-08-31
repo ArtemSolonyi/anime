@@ -1,7 +1,12 @@
-import {IsNotEmpty} from "class-validator";
+import {Type} from "class-transformer";
+import {IsDefined, IsInt, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString} from "class-validator";
 
 export class AddingToFriendList {
-    userId:number
-    @IsNotEmpty()
-    friendId:number
+    userId: number
+    @IsOptional()
+    @IsNumber()
+    friendId: number
+    @IsOptional()
+    @IsString()
+    friendName: string
 }

@@ -16,6 +16,7 @@ import {MailService} from "../sendMailer/mail.service";
 import {isEmail} from "./isEmail";
 import {Setting} from "../settings/entities/setting.entity";
 import {ConfigService} from "@nestjs/config";
+import {Profile} from "../profile/entities/profile.entity";
 
 
 type IUser = Omit<AuthDto, "password">
@@ -29,6 +30,7 @@ interface IUserInfo {
 export class AuthService {
     constructor(@InjectRepository(User) private userRepository: Repository<User>,
                 @InjectRepository(Setting) private settingRepository: Repository<Setting>,
+                @InjectRepository(Profile) private profileRepository:Repository<Profile>,
                 private tokenService: TokenService,
                 private config: ConfigService,
                 private mailService: MailService) {
@@ -48,6 +50,7 @@ export class AuthService {
             tempKeyForActivationEmail: tempKey
         })
         await this.settingRepository.save(setting)
+        await this.profileRepository.save({userId:savedUser.id})
         this.mailService.activateAccount(registeredUser.email, tempKey)
         throw new HttpException("Letter was sending to email", HttpStatus.OK)
     }

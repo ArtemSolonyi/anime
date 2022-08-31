@@ -5,6 +5,8 @@ import {EmailDto} from "../profile/dto/email.dto";
 import {RecoveryPasswordDto} from "./dto/recovery.password.dto";
 import {NewPasswordDto} from "./dto/new.password.dto";
 import {RequestChangingEmailDto} from "../profile/dto/requestChangingEmailDto";
+import {ChangeAvatarDto} from "./dto/change-avatar.dto";
+import {VisibilityProfileDto} from "./dto/visibility-profile.dto";
 
 
 @Controller('settings')
@@ -13,7 +15,7 @@ export class SettingsController {
     }
 
     @Get()
-    async getSettingsOfUser(@Body() body:{userId:number} ) {
+    async getSettingsOfUser(@Body() body: { userId: number }) {
         return await this.settingsService.getSettingsOfUser(body.userId)
     }
 
@@ -47,5 +49,13 @@ export class SettingsController {
         return await this.settingsService.changingForgotPasswordByEmailAndCode(body)
     }
 
+    @Patch('/changing/avatar')
+    async changingAvatar(@Body() body: ChangeAvatarDto) {
+        return await this.settingsService.changingAvatar(body);
+    }
+    @Patch('/visibilityProfile')
+    async visibilityProfile(@Body() body:VisibilityProfileDto){
+        return await this.settingsService.visibilityProfile(body);
+    }
 
 }

@@ -20,20 +20,24 @@ import {JwtService} from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import {ConfigService} from "@nestjs/config";
 import {AuthService} from "../authorizhation/auth.service";
+import {ChangeAvatarDto} from "./dto/change-avatar.dto";
+import {Profile} from "../profile/entities/profile.entity";
+import {VisibilityProfileDto} from "./dto/visibility-profile.dto";
 
 @Injectable()
 export class SettingsService {
     constructor(
+        @InjectRepository(Profile) private profileRepository: Repository<Profile>,
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(Setting) private settingRepository: Repository<Setting>,
-        private authService:AuthService,
+        private authService: AuthService,
         private jwtService: JwtService,
         private mailService: MailService,
         private config: ConfigService) {
     }
 
     public async getSettingsOfUser(userId: number) {
-        return await this.userRepository.findOne({where:{id:userId},select:{email:true,nickname:true}})
+        return await this.userRepository.findOne({where: {id: userId}, select: {email: true, nickname: true}})
     }
 
     public async changeNickname(body: ChangingNicknameDtoDto) {
@@ -110,10 +114,20 @@ export class SettingsService {
             await this.userRepository.save(user)
             settings.accessToChangingPassword = false
             await this.settingRepository.save(settings)
-            return await this.authService.login({login:body.email,password:body.newPassword})
+            return await this.authService.login({login: body.email, password: body.newPassword})
         } else {
             throw new HttpException("You don't have permission", HttpStatus.FORBIDDEN)
         }
+    }
+
+    public async changingAvatar(body: ChangeAvatarDto): Promise<Profile> {
+        const profile = await this.profileRepository.findOne({where: {userId: body.userId}})
+        return await this.profileRepository.save({...profile, avatar: body.avatar})
+    }
+
+    public async visibilityProfile(body: VisibilityProfileDto) {
+        const userProfile  = await this.profileRepository.findOne({where:{userId:body.userId}})
+        return await this.profileRepository.save({...userProfile, visibilityProfile: body.visibilityProfile})
     }
 
 }

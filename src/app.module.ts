@@ -1,4 +1,4 @@
-import {MiddlewareConsumer, Module, NestModule, RequestMethod, ValidationPipe} from '@nestjs/common';
+import {CacheModule, MiddlewareConsumer, Module, NestModule, RequestMethod, ValidationPipe} from '@nestjs/common';
 import {ItemsModule} from './items/items.module';
 import {APP_PIPE} from "@nestjs/core";
 import {TypeOrmModule} from "@nestjs/typeorm"
@@ -11,7 +11,7 @@ import {JwtModule} from "@nestjs/jwt";
 import {ProfileModule} from "./profile/profile.module";
 import {ProfileController} from "./profile/profile.controller";
 import {SettingsModule} from './settings/settings.module';
-import {ConfigModule} from "@nestjs/config";
+import {ConfigModule, ConfigService} from "@nestjs/config";
 import * as dotenv from "dotenv"
 import {typeSettingsMySql} from "../config";
 import {FileModule} from "./file.controller/file.module";
@@ -20,13 +20,24 @@ import {join} from "path";
 import {SettingsController} from "./settings/settings.controller";
 import {FilterModule} from "./filter/filter.module";
 import {OnlineStatusModule} from './online-status/online-status.module';
-import { FriendsModule } from './friends/friends.module';
+import {FriendsModule} from './friends/friends.module';
 import {FriendsController} from "./friends/friends.controller";
+import {CommunicationModule} from './communication/communication.module';
+import * as redisStore from "cache-manager-ioredis";
+
 
 dotenv.config()
 
+
 @Module({
-    imports: [TypeOrmModule.forRoot(typeSettingsMySql),
+    imports: [
+        CacheModule.register({
+            isGlobal:true,
+            store: redisStore,
+            host: 'localhost',
+            port:  6379,
+            ttl: 60 * 3600 * 1000,}),
+        TypeOrmModule.forRoot(typeSettingsMySql),
         ItemsModule,
         AuthModule,
         TokenModule,
@@ -36,11 +47,11 @@ dotenv.config()
         SettingsModule,
         FilterModule.forRoot(),
         ConfigModule.forRoot({
-            isGlobal:true
-        }),FileModule, ServeStaticModule.forRoot({
+            isGlobal: true
+        }), FileModule, ServeStaticModule.forRoot({
             rootPath: join(__dirname, '../..', 'build')
-            ,exclude:['/api*'],
-        }), OnlineStatusModule, FriendsModule
+            , exclude: ['/api*'],
+        }), OnlineStatusModule, FriendsModule, CommunicationModule
     ],
     controllers: [],
     providers: [{
@@ -56,7 +67,7 @@ export class AppModule implements NestModule {
                 'api/v1/settings/request/forgot/password',
                 'api/v1/settings/sending/forgot/password',
                 'api/v1/settings/changing/forgot/password',
-                {path:'api/v1/profile',method:RequestMethod.GET}).forRoutes(ItemsController, ProfileController,SettingsController,FriendsController)
+               ).forRoutes(ItemsController, ProfileController, SettingsController, FriendsController)
     }
 }
 

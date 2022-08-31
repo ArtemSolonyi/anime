@@ -1,5 +1,6 @@
-import {Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn} from 'typeorm';
+import {Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, ManyToMany, OneToMany} from 'typeorm';
 import {Profile} from "../../profile/entities/profile.entity";
+import {Friend} from "../../friends/entities/friend.entity";
 
 @Entity()
 export class User {
@@ -17,6 +18,7 @@ export class User {
     role: string
     @OneToOne(()=>Profile,(profile)=>profile.user)
     profile:Profile
-
+    @OneToMany(()=>Friend,(friend)=>friend.friends)
+    friend:Friend[]
 }
 

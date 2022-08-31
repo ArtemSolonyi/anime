@@ -1,7 +1,8 @@
 import {Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
 import {FriendsService} from './friends.service';
 import {AddingToFriendList} from './dto/create-friend.dto';
-import {UpdateFriendDto} from './dto/update-friend.dto';
+import {AddToBlackListDto} from "./dto/addToBlackList.dto";
+import {AddToFavouriteListDto} from "./dto/addToFavouriteList.dto";
 
 @Controller('friends')
 export class FriendsController {
@@ -9,7 +10,7 @@ export class FriendsController {
     }
 
     @Post('/add')
-    async create(@Body() addToFriendList: AddingToFriendList) {
+    async addToFriendList(@Body() addToFriendList: AddingToFriendList) {
         return await this.friendsService.create(addToFriendList);
     }
 
@@ -17,19 +18,26 @@ export class FriendsController {
     async getAllFriends(@Body() body: { userId: number }) {
         return await this.friendsService.getAllFriends(body.userId);
     }
-
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.friendsService.findOne(+id);
+    @Delete()
+    async removeFromFriendList(@Body() body:{userId:number,friendId:number}){
+        return await this.friendsService.removeFromFriendList(body);
+    }
+    @Patch('/add/to/blacklist')
+    async addToBlackList(@Body() addToBlackList: AddToBlackListDto) {
+        return await this.friendsService.blackList({...addToBlackList, status: true})
     }
 
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateFriendDto: UpdateFriendDto) {
-        return this.friendsService.update(+id, updateFriendDto);
+    @Patch('/remove/from/black/list')
+    async removeFromBlackList(@Body() addToBlackList: AddToBlackListDto) {
+        return await this.friendsService.blackList({...addToBlackList, status: false})
     }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.friendsService.remove(+id);
+    @Patch('/addtofavouritelist')
+    async addToFavouriteList(@Body() addToFavouriteList: AddToFavouriteListDto) {
+        return await this.friendsService.favouriteList({...addToFavouriteList,favouriteStatus:true})
+    }
+    @Delete('/removefromfavouritelist')
+    async removeFromFavouriteList(@Body() addToFavouriteList: AddToFavouriteListDto) {
+        return await this.friendsService.favouriteList({...addToFavouriteList,favouriteStatus:false})
     }
 }
