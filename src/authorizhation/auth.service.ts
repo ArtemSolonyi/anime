@@ -17,6 +17,7 @@ import {isEmail} from "./isEmail";
 import {Setting} from "../settings/entities/setting.entity";
 import {ConfigService} from "@nestjs/config";
 import {Profile} from "../profile/entities/profile.entity";
+import {JwtPayload} from "jsonwebtoken";
 
 
 type IUser = Omit<AuthDto, "password">
@@ -26,11 +27,13 @@ interface IUserInfo {
     user: IUser
 }
 
+export type UserId = { userId: number }
+
 @Injectable()
 export class AuthService {
     constructor(@InjectRepository(User) private userRepository: Repository<User>,
                 @InjectRepository(Setting) private settingRepository: Repository<Setting>,
-                @InjectRepository(Profile) private profileRepository:Repository<Profile>,
+                @InjectRepository(Profile) private profileRepository: Repository<Profile>,
                 private tokenService: TokenService,
                 private config: ConfigService,
                 private mailService: MailService) {
@@ -50,24 +53,28 @@ export class AuthService {
             tempKeyForActivationEmail: tempKey
         })
         await this.settingRepository.save(setting)
-        await this.profileRepository.save({userId:savedUser.id})
+        await this.profileRepository.save({userId: savedUser.id})
         this.mailService.activateAccount(registeredUser.email, tempKey)
         throw new HttpException("Letter was sending to email", HttpStatus.OK)
     }
 
     async mailActivation(token: string): Promise<IUserInfo | PreconditionFailedException> {
-        let userId = this.tokenService.verify(token).userId
-        await this.tokenService.tokensForRegister(userId)
-        const user = await this.userRepository.findOneBy({id: userId})
-        const setting = await this.settingRepository.findOneBy({userId: userId})
-        if (setting && !setting.emailIsActivated) {
-            if (setting.tempKeyForActivationEmail === token) {
-                await this.settingRepository.update({id: setting.id}, {emailIsActivated: true})
-                return {tokens: this.tokenService.getPairTokens(), user: this.getInfoAboutUser(user)}
-            } else {
-                throw new PreconditionFailedException("Failed activate mail")
-            }
-        } else throw new PreconditionFailedException("Email already activate")
+        let userIdOrError = await this.tokenService.verify(token)
+        let userId = 0;
+        if(this.jwtUserId(userIdOrError)) {
+            userId = userIdOrError.userId
+            await this.tokenService.tokensForRegister(userId)
+            const user = await this.userRepository.findOneBy({id: userId})
+            const setting = await this.settingRepository.findOneBy({userId: userId})
+            if (setting && !setting.emailIsActivated) {
+                if (setting.tempKeyForActivationEmail === token) {
+                    await this.settingRepository.update({id: setting.id}, {emailIsActivated: true})
+                    return {tokens: this.tokenService.getPairTokens(), user: this.getInfoAboutUser(user)}
+                } else {
+                    throw new PreconditionFailedException("Failed activate mail")
+                }
+            } else throw new PreconditionFailedException("Email already activate")
+        }
     }
 
     async login(body: AuthLoginDto): Promise<(UnprocessableEntityException | NotFoundException) | IUserInfo> {
@@ -101,11 +108,15 @@ export class AuthService {
         }
     }
 
-    async refresh(body: AuthRefreshDto): Promise<{ tokens: ITokens; user: { username: string } }> {
-        const data: { userId: number } = this.tokenService.verify(body.refreshToken)
-        await this.tokenService.updateTokens(data.userId)
-        const user: User = await this.userRepository.findOneBy({id: data.userId})
-        return {tokens: this.tokenService.getPairTokens(), user: {username: user.username}}
+    async refresh(body: AuthRefreshDto): Promise<HttpException | ({ tokens: ITokens } & { user: { username: string } })> {
+        const data: HttpException | { userId: number } = await this.tokenService.verify(body.refreshToken)
+        if (!this.isHttpException(data)) {
+            await this.tokenService.updateTokens(data.userId)
+            const user: User = await this.userRepository.findOneBy({id: data.userId})
+            return {tokens: this.tokenService.getPairTokens(), user: {username: user.username}}
+        } else {
+            return data;
+        }
     }
 
     private getInfoAboutUser(user: User): IUser {
@@ -122,6 +133,14 @@ export class AuthService {
             throw new ConflictException("Username already exist")
         }
 
+    }
+
+    public jwtUserId(jwtUserId:  HttpException |{userId: number}): jwtUserId is UserId {
+        return typeof (jwtUserId as {userId:number}).userId == 'number'
+    }
+
+    public isHttpException(HttpException: HttpException | { userId: number }): HttpException is HttpException {
+        return (HttpException as HttpException).message !== undefined;
     }
 
 }

@@ -9,7 +9,7 @@ import {
 import {ChangingNicknameDtoDto} from "../profile/dto/changing.nickname.dto";
 import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "../users/entities/user.entity";
-import {Repository} from "typeorm";
+import {LessThan, Repository} from "typeorm";
 import {EmailDto} from "../profile/dto/email.dto";
 import {Setting} from "./entities/setting.entity";
 import {MailService} from "../sendMailer/mail.service";
@@ -109,7 +109,7 @@ export class SettingsService {
             throw new HttpException("Email not exist", HttpStatus.NOT_FOUND)
         }
         const settings = await this.settingRepository.findOneBy({userId: user.id})
-        if (settings.accessToChangingPassword && settings.accessToChangingPassword) {
+        if (settings.accessToChangingPassword) {
             user.password = await bcrypt.hash(body.newPassword, bcrypt.genSaltSync(5));
             await this.userRepository.save(user)
             settings.accessToChangingPassword = false

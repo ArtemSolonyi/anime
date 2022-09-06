@@ -3,7 +3,7 @@ import {User} from "../users/entities/user.entity";
 import {Token} from "./entities/token.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
-import {Injectable} from "@nestjs/common";
+import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {JwtService} from '@nestjs/jwt';
 import {AuthRefreshDto} from "../authorizhation/dto/auth.dto";
 import {ConfigService} from "@nestjs/config";
@@ -21,7 +21,7 @@ export class TokenService {
 
     constructor(@InjectRepository(Token) private tokenRepository?: Repository<Token>,
                 private jwtService?: JwtService,
-                private config?:ConfigService) {
+                private config?: ConfigService) {
     }
 
     public async groupingCreatedTokens(userId: number): Promise<void> {
@@ -39,8 +39,13 @@ export class TokenService {
         return {accessToken: this._accessToken, refreshToken: this._refreshToken}
     }
 
-    public verify(token: string) {
-        return this.jwtService.verify(token, {secret:this.config.get("SECRET_KEY_REFRESH_JWT")})
+    public verify(token: string):{ userId: number } | HttpException {
+        try {
+            return  this.jwtService.verify(token, {secret: this.config.get("SECRET_KEY_REFRESH_JWT")}) as {userId:number}
+        } catch (e) {
+            throw  new HttpException('tempKey no correct',HttpStatus.BAD_REQUEST);
+        }
+
     }
 
     public async saveCreatedTokens(): Promise<void> {
