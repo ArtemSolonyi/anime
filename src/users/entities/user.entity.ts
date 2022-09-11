@@ -18,7 +18,7 @@ export class User {
     role: string
     @OneToOne(()=>Profile,(profile)=>profile.user)
     profile:Profile
-    @OneToMany(()=>Friend,(friend)=>friend.friends)
+    @OneToMany(()=>Friend,(friend)=>friend.friendInfo)
     friend:Friend[]
 }
 

@@ -1,4 +1,4 @@
-import {HttpStatus, Injectable} from "@nestjs/common";
+import {BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "../users/entities/user.entity";
 import {Repository} from "typeorm";
@@ -20,7 +20,7 @@ export class ProfileService {
             .createQueryBuilder('user')
             .where([{id: userId}, {username: username}])
             .leftJoinAndSelect("user.profile", 'profile')
-            .select(["user.nickname", "profile.avatar","profile.visibilityProfile"])
+            .select(["user.nickname","user.username", "profile.avatar", "profile.visibilityProfile"])
             .getOne() ?? {error: HttpStatus.NOT_FOUND, message: "User not found"};
     }
 
@@ -33,19 +33,23 @@ export class ProfileService {
         if (this.isUser(userProfile)) {
             switch (userProfile.profile.visibilityProfile) {
                 case VisibilityProfile.ALL: {
-                    return userProfile
+                    return {nickname:userProfile.nickname,username:userProfile.username,avatar:userProfile.profile.avatar}
                 }
                 case VisibilityProfile.ONLY_FRIENDS: {
                     const friendsRelations = await this.friendRepository.findOne({
-                        where: {userId: userId,friendId:userProfile.id, }
+                        where: {userId: userId, friendId: userProfile.id,}
                     })
-                    return friendsRelations ? userProfile : {message: "You are not friend this person"}
+                    if (friendsRelations) {
+                        return {nickname:userProfile.nickname,username:userProfile.username,avatar:userProfile.profile.avatar}
+                    } else {
+                        throw  new HttpException('You are not in list friend', HttpStatus.OK)
+                    }
                 }
                 case VisibilityProfile.NOTHING: {
-                    return {message: "Profile hidden"}
+                    throw  new HttpException('Profile hidden', HttpStatus.OK)
                 }
-                default:{
-                    return {message:"Something went wrong"}
+                default: {
+                     throw new BadRequestException('Something went wrong')
                 }
             }
         } else {

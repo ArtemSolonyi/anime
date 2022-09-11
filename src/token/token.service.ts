@@ -25,9 +25,10 @@ export class TokenService {
     }
 
     public async groupingCreatedTokens(userId: number): Promise<void> {
+        
         const payloadData = {userId: userId}
         this._accessToken = await this.createToken(payloadData, this.config.get("SECRET_KEY_ACCESS_JWT"), "15m")
-        this._refreshToken = await this.createToken(payloadData, this.config.get("SECRET_KEY_REFRESH_JWT"), '30d')
+        this._refreshToken = await this.createToken(payloadData, this.config.get("SECRET_KEY_REFRESH_JWT"), '15d')
 
     }
 

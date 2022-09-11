@@ -9,7 +9,7 @@ export enum VisibilityProfile{
 export class Profile {
     @PrimaryGeneratedColumn()
     id: number
-    @Column({type: 'int', nullable: true, select: true})
+    @Column({type: 'int', nullable: true, select: false})
     userId:number
     @OneToOne(()=>User,(user)=>user.profile)
     @JoinColumn({name:"userId"})

@@ -108,12 +108,12 @@ export class AuthService {
         }
     }
 
-    async refresh(body: AuthRefreshDto): Promise<HttpException | ({ tokens: ITokens } & { user: { username: string } })> {
+    async refresh(body: AuthRefreshDto): Promise<HttpException | ({ tokens: ITokens } & { user: { username: string ,role:string,email:string} })> {
         const data: HttpException | { userId: number } = await this.tokenService.verify(body.refreshToken)
         if (!this.isHttpException(data)) {
             await this.tokenService.updateTokens(data.userId)
             const user: User = await this.userRepository.findOneBy({id: data.userId})
-            return {tokens: this.tokenService.getPairTokens(), user: {username: user.username}}
+            return {tokens: this.tokenService.getPairTokens(), user: {username: user.username,role:user.role,email:user.email}}
         } else {
             return data;
         }

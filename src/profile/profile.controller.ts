@@ -10,11 +10,7 @@ export class ProfileController {
     @Get('')
     async getPublicProfileOfUser(@Body() body: { userId: number }, @Query() queries: { userIdOfProfile?: number, username?: string }) {
         return await this.profileService.getProfileByVisibility(
-            {
-                userId: body.userId,
-                userIdOfProfile: queries.userIdOfProfile,
-                username: queries.username
-            });
+            {userId: body.userId, userIdOfProfile: queries.userIdOfProfile, username: queries.username});
     }
 
 

@@ -10,6 +10,8 @@ export class CreateTableFriends1661011199549 implements MigrationInterface {
                         {name: 'userId', type: 'int'},
                         {name: 'friendId', type: 'int'},
                         {name: 'blackList', type: 'boolean'},
+                        {name:'myConfirmation',type:'boolean'},
+                        {name:'friendConfirmation',type:'boolean'},
                         {name: 'favourite', type: 'boolean'},
                     ], foreignKeys: [new TableForeignKey({
                     columnNames: ["userId"],
